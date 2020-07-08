@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -141,12 +142,15 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("Cards For Climate!");
         Debug.Log("Press P to start your turn and advance further");
+        
+
+        BeginTurn();
     }
 
-    /// <summary>
-    /// Turns the entire list of action cards into a shuffled deck
-    /// </summary>
-    public void GenerateActionDeck()
+        /// <summary>
+        /// Turns the entire list of action cards into a shuffled deck
+        /// </summary>
+        public void GenerateActionDeck()
     {
         do
         {

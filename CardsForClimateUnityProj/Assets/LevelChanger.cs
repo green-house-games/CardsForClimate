@@ -1,30 +1,32 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelChanger : MonoBehaviour
 {
 
     public Animator animator;
-
-    private int levelToLoad;
+    public float transitionTime = 10f;
+    //private int nextSceneIndex;
 
     // Update is called once per frame
-    void Update()
+    void Update() {}
+
+    public void LoadLevel(int nextSceneIndex)
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            FadeToLevel(1);
-        }
+        StartCoroutine(FadeToLevel(nextSceneIndex));
     }
 
-    public void FadeToLevel (int levelIndex)
+    IEnumerator FadeToLevel(int levelIndex)
     {
-        levelToLoad = levelIndex;
+        // Play animation
         animator.SetTrigger("FadeOut");
-    }
 
-    public void OnFadeComplete()
-    {
-        SceneManager.LoadScene(levelToLoad);
+        // Wait
+        yield return new WaitForSeconds(transitionTime);
+
+        // Load scene
+        SceneManager.LoadScene(levelIndex);
     }
 }
+
