@@ -123,6 +123,11 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         // time that has passed since the last frame
         while (elapsedTime < HandManager.Instance.CardSlideTime)
         {
+            if (!Sliding)
+            { // if at any point in the animation the slide is interrupted by player action, let it happen!
+                break;
+            }
+
             float scaledTime = elapsedTime / HandManager.Instance.CardSlideTime;
             if (!up) scaledTime = 1 - scaledTime;
             scaledTime = HandManager.Instance.CardSlideCurve.Evaluate(scaledTime);
@@ -175,6 +180,7 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         mouseDiff = 
             new Vector3(Input.mousePosition.x - transform.position.x, Input.mousePosition.y - transform.position.y, 0);
+        Sliding = false; // cancel the sliding animation; player has control now
     }
 
     /// <summary>
