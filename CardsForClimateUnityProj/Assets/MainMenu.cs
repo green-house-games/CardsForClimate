@@ -7,7 +7,13 @@ public class MainMenu : MonoBehaviour
 {
     public void PlayGame()
     {
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene("MainGame");
     }
-    
+
+    public void GetInvolved()
+    {
+        Application.OpenURL("http://greenhousegame.com/");
+        Debug.Log("is this working?");
+    }
+
 }
