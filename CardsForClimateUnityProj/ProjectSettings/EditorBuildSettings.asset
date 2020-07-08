@@ -14,4 +14,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainGame.unity
     guid: 9c1db4b94c91b7f45bcd4302aa659a9b
+  - enabled: 1
+    path: Assets/Scenes/GoodEndMenu.unity
+    guid: cf523f59209c0bd47a0634268ee82a6e
+  - enabled: 1
+    path: Assets/Scenes/BadEndMenu.unity
+    guid: b2f36b817e06d544e9fd8efe43c7380b
   m_configObjects: {}
