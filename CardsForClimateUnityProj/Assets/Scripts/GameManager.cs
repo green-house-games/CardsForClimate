@@ -148,10 +148,10 @@ public class GameManager : MonoBehaviour
         BeginTurn();
     }
 
-        /// <summary>
-        /// Turns the entire list of action cards into a shuffled deck
-        /// </summary>
-        public void GenerateActionDeck()
+    /// <summary>
+    /// Turns the entire list of action cards into a shuffled deck
+    /// </summary>
+    public void GenerateActionDeck()
     {
         do
         {

@@ -3498,7 +3498,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Climate Pathfinder
+  m_text: Green House
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 722abfa4496f7e2499ca2ae1457779d4, type: 2}
   m_sharedMaterial: {fileID: -296555358075566364, guid: 722abfa4496f7e2499ca2ae1457779d4,
@@ -3527,7 +3527,7 @@ MonoBehaviour:
   m_outlineColor:
     serializedVersion: 2
     rgba: 4278190080
-  m_fontSize: 58.05
+  m_fontSize: 72
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -3568,7 +3568,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_textInfo:
     textComponent: {fileID: 1680182588}
-    characterCount: 18
+    characterCount: 11
     spriteCount: 0
     spaceCount: 1
     wordCount: 2

@@ -13,7 +13,6 @@ public class MainMenu : MonoBehaviour
     public void GetInvolved()
     {
         Application.OpenURL("http://greenhousegame.com/");
-        Debug.Log("is this working?");
     }
 
 }
