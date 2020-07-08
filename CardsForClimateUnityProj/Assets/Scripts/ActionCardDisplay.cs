@@ -30,6 +30,16 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     public int DisplayCardIndex;
 
     /// <summary>
+    /// Whether or not the cursor is currently hovering over this card
+    /// </summary>
+    public bool Hovered { get; set; }
+
+    /// <summary>
+    /// Whether or not this card is currently sliding up or down as part of the hover animation
+    /// </summary>
+    public bool Sliding { get; private set; }
+
+    /// <summary>
     /// Used to calculate where the card should be based on where the mouse is dragging it from
     /// </summary>
     private Vector3 mouseDiff;
@@ -39,9 +49,31 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     private Vector3 restingPos;
 
+    /// <summary>
+    /// This card displayer's default screen rotation in the player's hand
+    /// </summary>
+    private Vector3 restingAngle;
+
     private void Start()
     {
         restingPos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        restingAngle = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);
+    }
+
+    /// <summary>
+    /// Called when the user hovers over the card with their mouse
+    /// </summary>
+    public void OnHover()
+    {
+        Hovered = true;
+    }
+
+    /// <summary>
+    /// Called when the user's mouse leaves the card
+    /// </summary>
+    public void OnExit()
+    {
+        Hovered = false;
     }
 
     /// <summary>
@@ -72,12 +104,83 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     }
 
     /// <summary>
+    /// Slides the card either up for better visibility or down back into the player's hand.
+    /// </summary>
+    /// <param name="up">Whether the card is sliding up (true) or down (false).</param>
+    /// <returns>Because this function yield returns an IENumerator, it can run in the background on a separate thread,
+    ///          then pick up later right where it left off. Perfect for animations!</returns>
+    public IEnumerator Slide(bool up)
+    {
+        // wait until next frame to see if the card is still moving before we can start moving it a different way
+        while (Sliding)
+        {
+            yield return new WaitForFixedUpdate();
+        }
+
+        float elapsedTime = 0;
+        Sliding = true;
+        // Move towards the desired position in the slide animation in increments proportional to the amount of
+        // time that has passed since the last frame
+        while (elapsedTime < HandManager.Instance.CardSlideTime)
+        {
+            if (!Sliding)
+            { // if at any point in the animation the slide is interrupted by player action, let it happen!
+                break;
+            }
+
+            float scaledTime = elapsedTime / HandManager.Instance.CardSlideTime;
+            if (!up) scaledTime = 1 - scaledTime;
+            scaledTime = HandManager.Instance.CardSlideCurve.Evaluate(scaledTime);
+
+            transform.position = Vector3.Lerp(restingPos, 
+                restingPos + new Vector3(0, HandManager.Instance.CardSlideDistance, 0), scaledTime);
+            transform.localEulerAngles = 
+                Vector3.Lerp(restingAngle, new Vector3(0,0, restingAngle.z > 180 ? 360 : 0), scaledTime);
+
+            elapsedTime += Time.deltaTime;
+            yield return new WaitForFixedUpdate(); // wait until next frame to continue movement
+        }
+
+        // Once time is up, finalize the positions and rotations of the cards
+        transform.position = restingPos;
+        if (up)
+        {
+            transform.position += new Vector3(0, HandManager.Instance.CardSlideDistance, 0);
+            transform.localEulerAngles = Vector3.zero;
+        } else
+        {
+            transform.localEulerAngles = restingAngle;
+        }
+        Sliding = false;
+    }
+
+    /// <summary>
+    /// Used to tell when user is grabbing card on a mobile device
+    /// </summary>
+    public void OnTouch()
+    {
+        if (Input.touchCount > 0)
+        {
+            Hovered = true;
+        }
+    }
+
+    public void OnEndTouch()
+    {
+        if (Input.touchSupported)
+        {
+            Hovered = false;
+        }
+    }
+
+    /// <summary>
     /// Implemented by the IBeginDragHandler interface. Called when the user begins dragging the card with the mouse.
     /// </summary>
     public void OnBeginDrag(PointerEventData eventData)
     {
         mouseDiff = 
             new Vector3(Input.mousePosition.x - transform.position.x, Input.mousePosition.y - transform.position.y, 0);
+        Sliding = false; // cancel the sliding animation; player has control now
     }
 
     /// <summary>
@@ -85,10 +188,7 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     public void OnDrag(PointerEventData eventData)
     {
-        if (DisplayCardIndex == HandManager.Instance.ActiveCardIndex)
-        {
-            transform.position = Input.mousePosition - mouseDiff;
-        }
+        transform.position = Input.mousePosition - mouseDiff;
     }
 
     /// <summary>
@@ -113,11 +213,10 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
                 // First, we make sure that this card is valid to be played
                 if (GameManager.Instance.PlayerCardsHope() && GameManager.Instance.ValidCard(MyCard))
                 {
-                    // If valid, we add the card to the card catcher square's collection, move focus to a different
-                    // adjacent card, and tell the GameManager to play this card.
+                    // If valid, we add the card to the card catcher square's collection
+                    // and tell the GameManager to play this card.
                     CardCatcher.Instance.CatchCard(this);
                     GameManager.Instance.UseCardByUI(MyCard);
-                    HandManager.Instance.ScrollRandom();
                     // only turn the card off if a new turn hasn't been started, triggered by the last card; 
                     // otherwise this will cause issues with the hand refilling between turns.
                     if (currentTurn == GameManager.Instance.CurrentTurnNumber)

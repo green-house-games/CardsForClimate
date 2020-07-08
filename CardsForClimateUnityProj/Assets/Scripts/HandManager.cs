@@ -13,12 +13,26 @@ public class HandManager : MonoBehaviour
     /// <summary>
     /// The index of the card that is currently fully visible
     /// </summary>
-    public int ActiveCardIndex = 2;
+    public int ActiveCardIndex = 0;
+
+    [Tooltip("The arc of movement in the y-axis that a card follows whil sliding.")]
+    public AnimationCurve CardSlideCurve;
+
+    [Tooltip("The time, in seconds, that a card sliding up or down will be in motion for.")]
+    public float CardSlideTime = 0.5f;
+
+    [Tooltip("How far upwards a sliding card will go to reach its resting hovered position.")]
+    public float CardSlideDistance = 30;
 
     /// <summary>
     /// Holds the UI objects that display action card data.
     /// </summary>
     private List<ActionCardDisplay> cardDisplayers = new List<ActionCardDisplay>();
+
+    /// <summary>
+    /// The card currently being hovered over by the player's mouse
+    /// </summary>
+    private ActionCardDisplay topCard;
 
     private void Awake()
     {
@@ -28,7 +42,6 @@ public class HandManager : MonoBehaviour
 
     private void Start()
     {
-        ActiveCardIndex = transform.childCount / 2;
         for (int i = 0; i < transform.childCount; i++)
         {
             ActionCardDisplay thisDisplay = transform.GetChild(i).GetComponent<ActionCardDisplay>();
@@ -36,6 +49,53 @@ public class HandManager : MonoBehaviour
             thisDisplay.ToggleMoneyAndCarbonDisplays(thisDisplay.DisplayCardIndex == ActiveCardIndex);
         }
         cardDisplayers.Sort((x, y) => x.DisplayCardIndex.CompareTo(y.DisplayCardIndex));
+    }
+
+    // Here we calculate which card is currently being hovered over, and thus should be on top and slid upward.
+    private void LateUpdate()
+    {
+        if (topCard != null && !topCard.gameObject.activeSelf)
+        {
+            topCard = null;
+        }
+
+        int topCardValue; // the display priority (lower is better) of the card currently being shown on top
+        if (topCard != null && topCard.Hovered)
+        {
+            topCardValue = topCard.DisplayCardIndex;
+        } else
+        {
+            topCardValue = int.MaxValue; // we should definitely have fewer cards in hand than this :)
+        }
+
+        bool topCardChanged = false;
+        // loop over every card in the hand, and see if they qualify to be the new top card
+        foreach (ActionCardDisplay card in cardDisplayers)
+        {
+            if (card.gameObject.activeSelf && card.Hovered && Mathf.Abs(card.DisplayCardIndex) < topCardValue)
+            {
+                if (topCard != null && !topCardChanged)
+                {
+                    StartCoroutine(topCard.Slide(false));
+                    topCard.ToggleMoneyAndCarbonDisplays(false);
+                }
+
+                topCardChanged = true;
+                topCard = card;
+                topCardValue = card.DisplayCardIndex;
+            }
+        }
+
+        if (topCardChanged) // execute all necessary animation changes for the new top card
+        {
+            StartCoroutine(topCard.Slide(true));
+            topCard.transform.SetAsLastSibling();
+            topCard.ToggleMoneyAndCarbonDisplays(true);
+        } else if (topCard != null && !topCard.Hovered) // if player's not hovering over anything, slide top card down
+        {
+            StartCoroutine(topCard.Slide(false));
+            topCard = null;
+        }
     }
 
     /// <summary>
@@ -55,50 +115,5 @@ public class HandManager : MonoBehaviour
                 cardDisplayers[i].SetCardAndDisplay(handCards[i]);
             }
         }
-    }
-
-    /// <summary>
-    /// Called by the card-scroll buttons on either side of the player's hand. Changes the order of the cards so that
-    /// the desired card is on top and fully visible, and all other cards are below it in a logical manner.
-    /// </summary>
-    /// <param name="left">True if we're scrolling left, false if we're scrolling right</param>
-    public void ScrollCards(bool left)
-    {
-        int originalIndex = ActiveCardIndex;
-        do
-        {
-            ActiveCardIndex = left ? ActiveCardIndex-1 : ActiveCardIndex+1;
-            if (ActiveCardIndex < 0 || ActiveCardIndex >= transform.childCount)
-            {
-                ActiveCardIndex = originalIndex;
-                return;
-            }
-        } while (!cardDisplayers[ActiveCardIndex].gameObject.activeSelf);
-
-        // Find the difference between the card index and the index of the active card for each card in the hand
-        List<KeyValuePair<ActionCardDisplay, int>> cardDiffs = new List<KeyValuePair<ActionCardDisplay, int>>();
-        for (int i = 0; i < cardDisplayers.Count; i++)
-        {
-            int difference = 
-                Mathf.Abs(ActiveCardIndex - cardDisplayers[i].DisplayCardIndex);
-            cardDiffs.Add(new KeyValuePair<ActionCardDisplay, int>(cardDisplayers[i], difference));
-        }
-        // Sort cards based on their differences from the active card, then set their display order appropriately
-        cardDiffs.Sort((x, y) => y.Value.CompareTo(x.Value));
-        for (int i = 0; i < cardDiffs.Count; i++)
-        {
-            cardDiffs[i].Key.transform.SetSiblingIndex(i);
-            cardDiffs[i].Key.ToggleMoneyAndCarbonDisplays(cardDiffs[i].Key.DisplayCardIndex == ActiveCardIndex);
-        }
-    }
-
-    /// <summary>
-    /// Scrolls the active card in a random direction that is possible to move into
-    /// </summary>
-    public void ScrollRandom()
-    {
-        if (ActiveCardIndex <= 0) ScrollCards(false);
-        else if (ActiveCardIndex >= transform.childCount - 1) ScrollCards(true);
-        else ScrollCards(Random.value > 0.5 ? true : false);
     }
 }

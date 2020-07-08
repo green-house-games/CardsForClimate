@@ -597,9 +597,9 @@ public class GameManager : MonoBehaviour
             return false;
         }
 
-        if (negativeHope >= 0) return true;
+        if (negativeHope >= 0 || hopeValid) return true;
 
-        if((playedCard.hope != 0))
+        if(playedCard.hope != 0)
         {
             hopeValid = true;
             return true;
