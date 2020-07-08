@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -79,6 +80,8 @@ public class GameManager : MonoBehaviour
 
     public static GameManager Instance;
 
+    GameObject EndTextHolder;
+
     [Header("Game UI Attributes")]
     public Slider MoneySlider;
     public Slider CarbonSlider;
@@ -95,6 +98,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void SetupGame()
     {
+        EndTextHolder = GameObject.Find("EndTextHolder");
+
         //Current cards in player's hand and previously played cards
         PlayerHand = new List<ActionCard>();
         PlayedCards = new List<Card>();
@@ -141,6 +146,8 @@ public class GameManager : MonoBehaviour
 
         Debug.Log("Cards For Climate!");
         Debug.Log("Press P to start your turn and advance further");
+
+        BeginTurn();
     }
 
     /// <summary>
@@ -629,21 +636,30 @@ public class GameManager : MonoBehaviour
             if(Carbon >= 30)
             {
                 Debug.Log("Carbon levels are too high now! Game Over");
+                EndTextHolder.GetComponent<EndGameText>().SetEnding(0);
+                SceneManager.LoadScene("BadEndMenu");
             } else if (Money <= 0)
             {
                 Debug.Log("We have run out of money for further action! Game Over");
+                EndTextHolder.GetComponent<EndGameText>().SetEnding(1);
+                SceneManager.LoadScene("BadEndMenu");
             } else if(negativeHope <= -3)
             {
                 Debug.Log("The planet has run out of time! Game Over");
+                EndTextHolder.GetComponent<EndGameText>().SetEnding(2);
+                SceneManager.LoadScene("BadEndMenu");
             } else if(CurrentEventDeck.Count == 0)
             {
                 Debug.Log("People have lost too much to continue! Game Over");
+                EndTextHolder.GetComponent<EndGameText>().SetEnding(3);
+                SceneManager.LoadScene("BadEndMenu");
             }
         //Check game win conditions
         } else if(Carbon <= 0)
         {
             Debug.Log("The Planet is Saved! " +
                 "We have begun reducing carbon emissions and are on track to help the world! You Win!");
+            SceneManager.LoadScene("GoodEndMenu");
         }
     }
 }
