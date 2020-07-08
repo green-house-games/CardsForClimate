@@ -84,6 +84,7 @@ public class GameManager : MonoBehaviour
     public Slider MoneySlider;
     public Slider CarbonSlider;
     public Button RedrawButton;
+    public Button EndTurnButton;
 
     private void Awake()
     {
@@ -600,9 +601,9 @@ public class GameManager : MonoBehaviour
             return false;
         }
 
-        if (negativeHope >= 0) return true;
+        if (negativeHope >= 0 || hopeValid) return true;
 
-        if((playedCard.hope != 0))
+        if(playedCard.hope != 0)
         {
             hopeValid = true;
             return true;
