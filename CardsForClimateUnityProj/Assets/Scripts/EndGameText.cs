@@ -10,15 +10,9 @@ public class EndGameText : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null) Debug.LogError("More than one GameManager present in the scene");
+        if (Instance != null) Debug.LogError("More than one EndGameText present in the scene");
         Instance = this;
         DontDestroyOnLoad (gameObject);
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
     }
 
     public void SetEnding(int ending)
@@ -42,12 +36,4 @@ public class EndGameText : MonoBehaviour
                 return "You've Lost! Game Over";
         }
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    
 }

@@ -5,19 +5,10 @@ using UnityEngine.SceneManagement;
 
 public class EndMenu : MonoBehaviour
 {
-    void Start()
-    {
-  
-    }
-
-    void Update()
-    {
-        
-    }
-
     public void NewGame()
     {
         Debug.Log("new game");
+        Destroy(((EndGameText)GameObject.FindObjectOfType(typeof(EndGameText))).gameObject);
         SceneManager.LoadScene("MainGame");
     }
 
