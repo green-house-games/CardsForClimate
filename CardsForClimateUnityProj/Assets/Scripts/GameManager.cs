@@ -32,7 +32,15 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public int Momentum { get; set; }
+    private int momentum;
+    public int Momentum { get {
+            return momentum;
+        }
+        set {
+            momentum = value;
+            MomentumDisplay.Instance.UpdateMomentum((MomentumCount)value);
+        }
+    }
     public int HopeKill { get; set; }
 
     public int CurrentTurnNumber { get; private set; } = 0;
@@ -66,8 +74,6 @@ public class GameManager : MonoBehaviour
     
     //Boolean for if hope requirements met
     bool hopeValid = true;
-    //Boolean for if momentum is active
-    bool hasMomentum = false;
     //Boolean for if slot is a valid slot
     bool validPos = true;
     //Boolean for game lost status
@@ -122,9 +128,7 @@ public class GameManager : MonoBehaviour
         TurnActive = false;
         //Boolean for if hope requirements met
         hopeValid = true;
-        //Boolean for if momentum is active
-        hasMomentum = false;
-        MomentumDisplay.Instance.UpdateMomentum(MomentumCount.Empty);
+        Momentum = 0;
         //Boolean for if slot is a valid slot
         validPos = true;
         //Boolean for game lost status
@@ -302,10 +306,10 @@ public class GameManager : MonoBehaviour
             // Either the card has passed the appropriate hope checks to be played or
             // the player currently has momentum then check what card was played and
             // if the position is a valid one to check
-            if (validPos && (hopeValid || hasMomentum))
+            if (validPos && (hopeValid || Momentum > 0))
             {
                 //If this is a momentum run, make sure the card played has momentum
-                if ((hasMomentum && currentCard.momentum > 0) || !hasMomentum)
+                if ((Momentum > 0 && currentCard.momentum > 0) || Momentum == 0)
                 {
                     //Display the name of the card the player has played
                     Debug.Log("Card played Name: " + currentCard.cardName +
@@ -334,7 +338,7 @@ public class GameManager : MonoBehaviour
                     //Card played has momentum
                     else
                     {
-                        hasMomentum = true;
+                        Momentum += 1;
                         //If player has no other momentum cards to play, end turn
                         if (!PlayerCardsMomentum())
                         {
@@ -452,7 +456,7 @@ public class GameManager : MonoBehaviour
         //reset values
         TurnActive = false;
         hopeValid = true;
-        hasMomentum = false;
+        Momentum = 0;
         validPos = true;
 
         //Temporarily display stats
@@ -561,7 +565,7 @@ public class GameManager : MonoBehaviour
     public bool PlayerCardsHope()
     {
         //Check if hope is an issue first
-        if(negativeHope >= 0 || hasMomentum) return true;
+        if(negativeHope >= 0 || Momentum > 0) return true;
         
         //Loop through player hand
         for(int i = 0; i < PlayerHand.Count; i++)
@@ -578,8 +582,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public bool PlayerCardsMomentum()
     {
-        //Check if it is a momentum run
-        if (hasMomentum == false) return true;
+        //Check if it is not a momentum run
+        if (Momentum == 0) return true;
 
         //Loop through player hand
         for(int i = 0; i < PlayerHand.Count; i++)
@@ -598,7 +602,7 @@ public class GameManager : MonoBehaviour
     public bool ValidCard(ActionCard playedCard)
     {
         // Make sure card played is valid given momentum constraints
-        if (hasMomentum && playedCard.momentum <= 0)
+        if (Momentum > 0 && playedCard.momentum <= 0)
         {
             Debug.Log("Card played must have momentum during a momentum run.");
             return false;
