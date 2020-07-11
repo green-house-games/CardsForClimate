@@ -28,6 +28,8 @@ public class EventCardDisplay : MonoBehaviour
     // Commenting CardArt out because it isn't used in the current design, but may be used in future designs
     //public GameObject CardArt;
 
+    private Animator myAnimator;
+
     private void Awake()
     {
         if (Instance != null) Debug.LogError("More than one instance of EventCardDisplay present");
@@ -37,7 +39,7 @@ public class EventCardDisplay : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        myAnimator = GetComponent<Animator>();
     }
 
     /// <summary>
@@ -46,6 +48,8 @@ public class EventCardDisplay : MonoBehaviour
     /// <param name="thisCard"></param>
     public void SetCardAndDisplay(EventCard thisCard)
     {
+        myAnimator.SetTrigger("New Card");
+
         MyCard = thisCard;
         Title.GetComponent<TextMeshProUGUI>().text = thisCard.cardName;
         Description.GetComponent<TextMeshProUGUI>().text = thisCard.cardDesc;
@@ -55,11 +59,5 @@ public class EventCardDisplay : MonoBehaviour
                                                 (thisCard.costCarbon > 0 ? "+" : "") + thisCard.costCarbon.ToString();
         //CardArt.GetComponent<Image>().sprite = thisCard.cardImage;
         HopeIcon.SetActive(thisCard.hope < 0);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 }

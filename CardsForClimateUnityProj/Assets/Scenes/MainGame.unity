@@ -205,6 +205,31 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 39496040}
   m_CullTransparentMesh: 0
+--- !u!1 &65587165 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3132716830865369698, guid: 4869ae2933fea474286ed92b245be0aa,
+    type: 3}
+  m_PrefabInstance: {fileID: 1992507962}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &65587167
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 65587165}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 4a36e75b2e62f1a49805af8d95767d34, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &89443160
 GameObject:
   m_ObjectHideFlags: 0
