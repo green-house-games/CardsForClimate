@@ -92,7 +92,6 @@ public class GameManager : MonoBehaviour
     public Slider MoneySlider;
     public Slider CarbonSlider;
     public Button RedrawButton;
-    public Button EndTurnButton;
 
     private void Awake()
     {
