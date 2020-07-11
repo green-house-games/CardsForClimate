@@ -14,17 +14,23 @@ public class CardCatcher : MonoBehaviour
     public Vector3 caughtCardScale = new Vector3(.25f, .25f, .25f);
 
     [Tooltip("How far away from the card play square, and each subsequent card, that a 'caught' (played) card will be.")]
-    public float CardDistanceIncrement = 15;
+    public float CardDistanceIncrement = 30;
 
     /// <summary>
     /// The current distance away from origin in the card catcher that caught cards should be.
     /// </summary>
-    private float runningCardDistance = 0;
+    private float runningCardDistance = 30;
+    private float startingCardDistance;
 
     private void Awake()
     {
         if (Instance != null) Debug.LogError("More than one CardCatcher found in scene");
         Instance = this;
+    }
+
+    private void Start()
+    {
+        startingCardDistance = runningCardDistance;
     }
 
     /// <summary>
@@ -35,14 +41,13 @@ public class CardCatcher : MonoBehaviour
         GameObject caughtCard = Instantiate(card.gameObject, transform.parent);
         // Do all the visual tricks to position the card nicely where it's meant to go, and also keep 
         // it from interfering with the game.
-        caughtCard.transform.SetAsFirstSibling();
+        caughtCard.transform.SetAsLastSibling();
         caughtCard.transform.localScale = caughtCardScale;
         caughtCard.transform.localEulerAngles = Vector3.zero;
-        caughtCard.GetComponent<ActionCardDisplay>().ToggleMoneyAndCarbonDisplays(false);
         caughtCard.GetComponent<Image>().raycastTarget = false; // keep players from being able to click the card
 
-        caughtCard.transform.localPosition = new Vector3(0, runningCardDistance + CardDistanceIncrement, 0);
-        runningCardDistance += CardDistanceIncrement;
+        caughtCard.transform.localPosition = new Vector3(0, runningCardDistance, 0);
+        runningCardDistance -= CardDistanceIncrement;
     }
 
     /// <summary>
@@ -56,7 +61,7 @@ public class CardCatcher : MonoBehaviour
             if (!thisChild.CompareTag("Card Play Square")) {
                 Destroy(transform.parent.GetChild(i).gameObject);
             }
-            runningCardDistance = 0; // set the distance the card will be away from the card catcher back to zero
+            runningCardDistance = startingCardDistance; // set distance card will be from card catcher back to default
         }
     }
 }
