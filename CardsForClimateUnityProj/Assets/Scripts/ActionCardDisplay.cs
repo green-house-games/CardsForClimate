@@ -211,7 +211,7 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
             if (raycastResults[i].gameObject.CompareTag("Card Play Square"))
             {
                 // First, we make sure that this card is valid to be played
-                if (GameManager.Instance.PlayerCardsHope() && GameManager.Instance.ValidCard(MyCard))
+                if (GameManager.Instance.ValidCard(MyCard))
                 {
                     // If valid, we add the card to the card catcher square's collection
                     // and tell the GameManager to play this card.
