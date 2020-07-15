@@ -50,7 +50,7 @@ public class GameManager : MonoBehaviour
 
     /// <summary>
     /// Capital-H Hope is a property that controls access to and updating of
-    /// lowercase-m hope, the backing value. It also ensures that the Hope UI
+    /// lowercase-h hope, the backing value. It also ensures that the Hope UI
     /// stays in sync with the hope value.
     /// Starts at Full and can be decremented until it is Empty.
     /// </summary>
@@ -536,10 +536,10 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Checks if any the player must play a hope card in their next play.
+    /// Checks if the player must play a hope card in their next play.
     /// </summary>
     public bool PlayerMustPlayHope() {
-        return Hope == MIN_HOPE + 1;
+        return (Hope == MIN_HOPE + 1 && activePlayerCardCount == 0);
     }
 
 
