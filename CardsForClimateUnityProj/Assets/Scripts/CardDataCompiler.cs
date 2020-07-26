@@ -54,22 +54,21 @@ public class CardDataCompiler : MonoBehaviour
         PullCardSpreadsheet();
     }
 
-    public static readonly string DocumentId = "1jZSGPYr4IXfvTKF-ufFWVQosDYh2DKbHl6gTqsAfanA";
-    public static readonly string SheetId = "173452736";
+    public static readonly string DocumentId = "1vvL7R6ShXb3P8KQ4I1YoglJB3Ugz296hbsG3lyh_Obs";
     public static readonly string CSVName = "CardTable";
     public void PullCardSpreadsheet()
     {
-        if (Application.isEditor)
+        /*if (Application.isEditor)
         {
             Action<string> commCallback = (csv) => {
                 LoadCSVText(csv);
             };
-            StartCoroutine(DownloadSpreadsheet(DocumentId, commCallback, true, CSVName, SheetId));
+            StartCoroutine(DownloadSpreadsheet(DocumentId, commCallback, true, CSVName));
         } else
-        {
+        {*/
             var data = Resources.Load(CSVName) as TextAsset;
             LoadCSVText(data.text);
-        }
+        //}
     }
 
     /// <summary>
@@ -161,7 +160,6 @@ public class CardDataCompiler : MonoBehaviour
         Debug.Log("Loading CSV Text...");
         // Parses CSV into a format where each line is separated and split further into a list of cells
         List<List<string>> parsedCsv = ParseCSV(csv);
-
         foreach (List<string> line in parsedCsv)
         {
             Card thisCard;
@@ -177,7 +175,7 @@ public class CardDataCompiler : MonoBehaviour
                     PositiveEventCards.Add((EventCard)thisCard);
                 } else if (int.Parse(line[11]) == 1)
                 { // this is a super negative event card
-                    SuperNegativeEventCards.Add(line[13], (EventCard)thisCard);
+                    SuperNegativeEventCards.Add(line[12], (EventCard)thisCard);
                 } else
                 { // this is just a normal event card
                     MasterEventDeck.Add((EventCard)thisCard);

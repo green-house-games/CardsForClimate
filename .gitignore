@@ -1,2 +1,6 @@
+# Don't upload build files to Git
+/[Bb]uild/
+/[Bb]uilds/
+
 # Misc unwanted file types
 .DS_Store

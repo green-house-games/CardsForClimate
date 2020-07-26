@@ -25,15 +25,11 @@ public class MomentumDisplay : MonoBehaviour
     public Sprite TwoMomentumIcon;
     public Sprite FullMomentumIcon;
 
-    void Start()
-    {
-        displayedImage = GetComponent<Image>();
-    }
-
     private void Awake()
     {
         if (Instance != null) Debug.LogError("More than one instance of MomentumDisplay present");
         Instance = this;
+        displayedImage = GetComponent<Image>();
     }
 
     /// <summary>

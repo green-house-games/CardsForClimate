@@ -37,10 +37,7 @@ public class HandManager : MonoBehaviour
     {
         if (Instance != null) Debug.LogError("More than one instance of HandManager present");
         Instance = this;
-    }
 
-    private void Start()
-    {
         for (int i = 0; i < transform.childCount; i++)
         {
             ActionCardDisplay thisDisplay = transform.GetChild(i).GetComponent<ActionCardDisplay>();

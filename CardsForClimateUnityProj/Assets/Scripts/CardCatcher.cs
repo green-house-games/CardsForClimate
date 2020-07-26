@@ -26,10 +26,7 @@ public class CardCatcher : MonoBehaviour
     {
         if (Instance != null) Debug.LogError("More than one CardCatcher found in scene");
         Instance = this;
-    }
 
-    private void Start()
-    {
         startingCardDistance = runningCardDistance;
     }
 

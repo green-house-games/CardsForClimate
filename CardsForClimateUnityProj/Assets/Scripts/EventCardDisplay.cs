@@ -34,11 +34,7 @@ public class EventCardDisplay : MonoBehaviour
     {
         if (Instance != null) Debug.LogError("More than one instance of EventCardDisplay present");
         Instance = this;
-    }
 
-    // Start is called before the first frame update
-    void Start()
-    {
         myAnimator = GetComponent<Animator>();
     }
 

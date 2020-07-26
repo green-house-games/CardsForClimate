@@ -24,15 +24,11 @@ public class HopeDisplay : MonoBehaviour
     public Sprite TwoHopeIcon;
     public Sprite FullHopeIcon;
 
-    void Start()
-    {
-        displayedImage = GetComponent<Image>();
-    }
-
     private void Awake()
     {
         if (Instance != null) Debug.LogError("More than one instance of HopeDisplay present");
         Instance = this;
+        displayedImage = GetComponent<Image>();
     }
 
     /// <summary>
