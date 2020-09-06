@@ -74,6 +74,7 @@ public class GameManager : MonoBehaviour
 
     //Current cards in player's hand and previously played cards
     public List<ActionCard> PlayerHand { get; private set; }
+    private List<ActionCard> newCards;
     public List<Card> PlayedCards { get; private set; }
 
     //Keeps track of what cards come next from the decks, receives data from master lists
@@ -264,7 +265,7 @@ public class GameManager : MonoBehaviour
         //Warn if hope card must be played
         if (PlayerMustPlayHope()) Debug.Log("A positive hope card must be played");
 
-        HandManager.Instance.SetCardDisplays(PlayerHand);
+        HandManager.Instance.SetCardDisplays(newCards);
         PrintPlayerHand();
         if (PlayerMustPlayHope() && !PlayerHasHopeCard() && Money < 5)
         {
@@ -459,7 +460,8 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void DrawCards()
     {
-        do
+        newCards = new List<ActionCard>();
+        while (PlayerHand.Count < 5)
         {
             //Check if there are no futher cards
             if (CurrentActionDeck.Count == 0)
@@ -469,8 +471,9 @@ public class GameManager : MonoBehaviour
             }
             //Draw a card and add it to the player hand
             PlayerHand.Add(CurrentActionDeck[0]);
+            newCards.Add(CurrentActionDeck[0]);
             CurrentActionDeck.RemoveAt(0);
-        } while (PlayerHand.Count < 5);
+        }
     }
 
     /// <summary>
@@ -494,7 +497,7 @@ public class GameManager : MonoBehaviour
             //Display new playerhand
             if (PlayerHasHopeCard())
             {
-                HandManager.Instance.SetCardDisplays(PlayerHand);
+                HandManager.Instance.SetCardDisplays(newCards);
                 PrintPlayerHand();
             } else
             {

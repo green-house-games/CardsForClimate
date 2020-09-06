@@ -35,9 +35,16 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     public bool Hovered { get; set; }
 
     /// <summary>
-    /// Whether or not this card is currently sliding up or down as part of the hover animation
+    /// Whether or not this card is currently set to be the center card
     /// </summary>
-    public bool Sliding { get; private set; }
+    public bool Centered { get; set; }
+
+    public bool ActiveCard { get; set; } = false;
+
+    /// <summary>
+    /// Whether or not this card is currently being shifted within the hand
+    /// </summary>
+    public bool Shifting { get; private set; }
 
     /// <summary>
     /// Used to calculate where the card should be based on where the mouse is dragging it from
@@ -45,19 +52,22 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     private Vector3 mouseDiff;
 
     /// <summary>
-    /// This card displayer's default screen position in the player's hand
+    /// This card displayer's default screen position at the time an interaction begins
     /// </summary>
-    private Vector3 restingPos;
+    public Vector3 restingPos { get; private set; }
 
     /// <summary>
     /// This card displayer's default screen rotation in the player's hand
     /// </summary>
     private Vector3 restingAngle;
 
+    private Image myImage;
+
     private void Start()
     {
-        restingPos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        restingPos = new Vector3(transform.localPosition.x, transform.localPosition.y, transform.localPosition.z);
         restingAngle = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);
+        myImage = GetComponent<Image>();
     }
 
     /// <summary>
@@ -75,7 +85,7 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         Hovered = false;
     }
-
+        
     /// <summary>
     /// Fills in the card information and turns on the proper icons on the card displayer.
     /// </summary>
@@ -92,6 +102,21 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         CardArt.GetComponent<Image>().sprite = thisCard.cardImage;
         MomentumIcon.SetActive(thisCard.momentum > 0);
         HopeIcon.SetActive(thisCard.hope > 0);
+        myImage.color = new Color(1, 1, 1, 1);
+        ActiveCard = true;
+    }
+
+    public void Deactivate()
+    {
+        ActiveCard = false;
+        Title.GetComponent<TextMeshProUGUI>().text = "";
+        Description.GetComponent<TextMeshProUGUI>().text = "";
+        Money.GetComponent<TextMeshProUGUI>().text = "";
+        Carbon.GetComponent<TextMeshProUGUI>().text = "";
+        CardArt.GetComponent<Image>().sprite = null;
+        MomentumIcon.SetActive(false);
+        HopeIcon.SetActive(false);
+        myImage.color = new Color(1, 1, 1, .4f);
     }
 
     /// <summary>
@@ -103,73 +128,53 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         CarbonIcon.SetActive(on);
     }
 
-    /// <summary>
-    /// Slides the card either up for better visibility or down back into the player's hand.
-    /// </summary>
-    /// <param name="up">Whether the card is sliding up (true) or down (false).</param>
-    /// <returns>Because this function yield returns an IENumerator, it can run in the background on a separate thread,
-    ///          then pick up later right where it left off. Perfect for animations!</returns>
-    public IEnumerator Slide(bool up)
+    public IEnumerator ShiftCard(Vector3 position, Quaternion rotation, Vector3 scale, float shiftTime = -1)
     {
-        // wait until next frame to see if the card is still moving before we can start moving it a different way
-        while (Sliding)
+        Shifting = true;
+        float elapsedTime = 0;
+        if (shiftTime < 0)
         {
+            shiftTime = HandManager.Instance.CardShiftTime;
+        }
+
+        Vector3 startPos = new Vector3(transform.localPosition.x, transform.localPosition.y, transform.localPosition.z);
+        Quaternion startRot = transform.localRotation;
+        Vector3 startScale = new Vector3(transform.localScale.x, transform.localScale.y, transform.localScale.z);
+
+        while (elapsedTime < shiftTime)
+        {
+            float scaledTime = HandManager.Instance.CardShiftCurve.Evaluate(elapsedTime / shiftTime);
+            transform.localPosition = Vector3.Lerp(startPos, position, scaledTime);
+            transform.localRotation = Quaternion.Slerp(startRot, rotation, scaledTime);
+            transform.localScale = Vector3.Lerp(startScale, scale, scaledTime);
+            
+
+            elapsedTime += Time.deltaTime;
             yield return new WaitForFixedUpdate();
         }
 
-        float elapsedTime = 0;
-        Sliding = true;
-        // Move towards the desired position in the slide animation in increments proportional to the amount of
-        // time that has passed since the last frame
-        while (elapsedTime < HandManager.Instance.CardSlideTime)
-        {
-            if (!Sliding)
-            { // if at any point in the animation the slide is interrupted by player action, let it happen!
-                break;
-            }
-
-            float scaledTime = elapsedTime / HandManager.Instance.CardSlideTime;
-            if (!up) scaledTime = 1 - scaledTime;
-            scaledTime = HandManager.Instance.CardSlideCurve.Evaluate(scaledTime);
-
-            transform.position = Vector3.Lerp(restingPos, 
-                restingPos + new Vector3(0, HandManager.Instance.CardSlideDistance, 0), scaledTime);
-            transform.localEulerAngles = 
-                Vector3.Lerp(restingAngle, new Vector3(0,0, restingAngle.z > 180 ? 360 : 0), scaledTime);
-
-            elapsedTime += Time.deltaTime;
-            yield return new WaitForFixedUpdate(); // wait until next frame to continue movement
-        }
-
-        // Once time is up, finalize the positions and rotations of the cards
-        transform.position = restingPos;
-        if (up)
-        {
-            transform.position += new Vector3(0, HandManager.Instance.CardSlideDistance, 0);
-            transform.localEulerAngles = Vector3.zero;
-        } else
-        {
-            transform.localEulerAngles = restingAngle;
-        }
-        Sliding = false;
+        transform.localPosition = position;
+        transform.localRotation = rotation;
+        transform.localScale = scale;
+        restingPos = new Vector3(transform.localPosition.x, transform.localPosition.y, transform.localPosition.z);
+        Shifting = false;
     }
 
     /// <summary>
-    /// Used to tell when user is grabbing card on a mobile device
+    /// Used to tell when user is grabbing card
     /// </summary>
-    public void OnTouch()
+    public void OnClick()
     {
-        if (Input.touchCount > 0)
-        {
-            Hovered = true;
-        }
+        Centered = true;
+        ToggleMoneyAndCarbonDisplays(true);
+        HandManager.Instance.ShiftCenter(this);
     }
 
     public void OnEndTouch()
     {
         if (Input.touchSupported)
         {
-            Hovered = false;
+            Centered = false;
         }
     }
 
@@ -178,9 +183,12 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     public void OnBeginDrag(PointerEventData eventData)
     {
-        mouseDiff = 
+        if (ActiveCard && Centered)
+        {
+            mouseDiff =
             new Vector3(Input.mousePosition.x - transform.position.x, Input.mousePosition.y - transform.position.y, 0);
-        Sliding = false; // cancel the sliding animation; player has control now
+            restingPos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        }
     }
 
     /// <summary>
@@ -188,7 +196,13 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     public void OnDrag(PointerEventData eventData)
     {
-        transform.position = Input.mousePosition - mouseDiff;
+        if (ActiveCard && Centered && (Input.mousePosition.y - mouseDiff.y) > restingPos.y)
+        {
+            transform.position = new Vector3(transform.position.x, Input.mousePosition.y - mouseDiff.y, transform.position.z);
+        } else
+        {
+            transform.position = new Vector3(transform.position.x, restingPos.y, transform.position.z);
+        }
     }
 
     /// <summary>
@@ -196,7 +210,6 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     public void OnEndDrag(PointerEventData eventData)
     {
-        int currentTurn = GameManager.Instance.CurrentTurnNumber;
         // put card back in its hand position
         transform.position = restingPos;
 
@@ -216,13 +229,8 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
                     // If valid, we add the card to the card catcher square's collection
                     // and tell the GameManager to play this card.
                     CardCatcher.Instance.CatchCard(this);
+                    Deactivate();
                     GameManager.Instance.UseCardByUI(MyCard);
-                    // only turn the card off if a new turn hasn't been started, triggered by the last card; 
-                    // otherwise this will cause issues with the hand refilling between turns.
-                    if (currentTurn == GameManager.Instance.CurrentTurnNumber)
-                    {
-                        gameObject.SetActive(false);
-                    }
                 }
                 break;
             }
