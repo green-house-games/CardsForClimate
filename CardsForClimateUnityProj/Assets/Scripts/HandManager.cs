@@ -15,6 +15,16 @@ public class HandManager : MonoBehaviour
     /// </summary>
     public int ActiveCardIndex = 2;
 
+    /// <summary>
+    /// the ratio of X-axis movement over which the player will be assumed to be scrolling cards
+    /// </summary>
+    public float CardScrollRatio = 1.8f;
+
+    /// <summary>
+    /// the threshold of X-axis movement over which the player will be assumed to be scrolling cards
+    /// </summary>
+    public float CardScrollThreshold = 30;
+
     [Tooltip("The time, in seconds, that a card shifting its hand position will be in motion for.")]
     public float CardShiftTime = 0.75f;
 
@@ -36,6 +46,11 @@ public class HandManager : MonoBehaviour
     public AnimationCurve CardScales;
 
     /// <summary>
+    /// Whether or not the user is currently scrolling cards in the hand
+    /// </summary>
+    public bool Scrolling { get; private set; }
+
+    /// <summary>
     /// Holds the UI objects that display action card data.
     /// </summary>
     private List<ActionCardDisplay> cardDisplayers = new List<ActionCardDisplay>();
@@ -53,7 +68,7 @@ public class HandManager : MonoBehaviour
         Instance = this;
 
         for (int i = 0; i < transform.childCount; i++)
-        {
+        { // Initialize all card displayer objects for interactions to come
             ActionCardDisplay thisDisplay = transform.GetChild(i).GetComponent<ActionCardDisplay>();
             cardDisplayers.Add(thisDisplay);
             thisDisplay.ToggleMoneyAndCarbonDisplays(thisDisplay.DisplayCardIndex == ActiveCardIndex);
@@ -66,11 +81,12 @@ public class HandManager : MonoBehaviour
     /// Fills in display information for empty card slots in the player's hand
     /// </summary>
     /// <param name="newCards">The actual data objects for the new cards to add to the player's hand</param>
-    public void SetCardDisplays(List<ActionCard> newCards)
+    /// <param name="redraw">Optional bool that tells the function if cards are being redrawn</param>
+    public void SetCardDisplays(List<ActionCard> newCards, bool redraw = false)
     {
         foreach (ActionCardDisplay card in cardDisplayers)
         {
-            if (!card.ActiveCard && newCards.Count > 0)
+            if ((!card.ActiveCard || redraw) && newCards.Count > 0)
             {
                 card.gameObject.SetActive(true);
                 card.SetCardAndDisplay(newCards[0]);
@@ -80,7 +96,7 @@ public class HandManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Moves the current position within the hand of cards that's currently centered onscreen
+    /// Changes which card within the hand of cards is currently centered onscreen
     /// </summary>
     /// <param name="centeredCard">The new card to become centered</param>
     public void ShiftCenter(ActionCardDisplay centeredCard)
@@ -100,28 +116,45 @@ public class HandManager : MonoBehaviour
         }
     }
 
-    public void StartDraggingCards()
+    /// <summary>
+    /// Called when the hand feels someone begin to drag it to the side. Initializes values for the cards to drag/scroll
+    /// </summary>
+    /// <param name="turnOffCarbon">Do we want to turn off money/carbon displays on cards?</param>
+    public void StartDraggingCards(bool turnOffCarbon = true)
     {
         mouseStart = new Vector3(Input.mousePosition.x - (Screen.width / 2), Input.mousePosition.y - (Screen.height / 2));
-        foreach (ActionCardDisplay card in cardDisplayers)
+        if (turnOffCarbon)
         {
-            card.ToggleMoneyAndCarbonDisplays(false);
+            foreach (ActionCardDisplay card in cardDisplayers)
+            {
+                card.ToggleMoneyAndCarbonDisplays(false);
+            }
         }
     }
 
+    /// <summary>
+    /// Called each frame when the Hand feels the player dragging it one way or another. Used to scroll cards in real-
+    /// time alongside the player's mouse/touch movement.
+    /// </summary>
     public void DragCards()
     {
+        Scrolling = true;
         Vector3 mouseDiff = new Vector3(Input.mousePosition.x - (Screen.width/2), Input.mousePosition.y - (Screen.height/2)) - mouseStart;
         foreach (ActionCardDisplay card in cardDisplayers) {
-            float newTime = InvertedCardXFrames.Evaluate(mouseDiff.x + card.restingPos.x);
+            float newTime = InvertedCardXFrames.Evaluate(mouseDiff.x + card.RestingPosLocal.x);
             card.transform.localPosition = new Vector3(CardXFrames.Evaluate(newTime), CardYFrames.Evaluate(newTime), 0);
             card.transform.localRotation = Quaternion.Euler(0, 0, CardZRotationFrames.Evaluate(newTime));
             card.transform.localScale = new Vector3(CardScales.Evaluate(newTime), CardScales.Evaluate(newTime), 1);
         }
     }
 
+    /// <summary>
+    /// Called on the frame that the Hand feels the player stop dragging it. Finalizes card positions according to
+    /// their nearest "set" positions.
+    /// </summary>
     public void StopDraggingCards()
     {
+        // Used to identify which card slots are still available
         List<int> currentIndices = new List<int>(displayIndices);
         foreach (ActionCardDisplay card in cardDisplayers)
         {
@@ -142,16 +175,20 @@ public class HandManager : MonoBehaviour
                 card.ToggleMoneyAndCarbonDisplays(true);
             }
 
+            // Move each card to its nearest "set" position
             StartCoroutine(card.ShiftCard(new Vector3(CardXFrames.Evaluate(newTime), CardYFrames.Evaluate(newTime), 0),
                 Quaternion.Euler(0, 0, CardZRotationFrames.Evaluate(newTime)),
                 new Vector3(CardScales.Evaluate(newTime), CardScales.Evaluate(newTime), 1),
                 CardShiftTime * .5f));
         }
+        Scrolling = false;
     }
 
 #if UNITY_EDITOR
     /// <summary>
     /// Details how cards should be positioned along the x-axis and y-axis, rotated along the z-axis, and sized in x and y.
+    /// Update positions here, then use the editor buttons to clear and generate keyframes, and you should have updated
+    /// "set" positions for cards in the hand.
     /// </summary>
     private Dictionary<int, float[]> cardPositionValues = new Dictionary<int, float[]>
     {
@@ -166,6 +203,10 @@ public class HandManager : MonoBehaviour
         { 4, new float[5] {860, -450, 320, .3f, .3f} },
     };
 
+    /// <summary>
+    /// Turn all the position/rotation/scale information above into keyframes on an animation curve, which can then be
+    /// accessed and evaluated easily during runtime.
+    /// </summary>
     public void GenerateKeyframes()
     {
         // Generate X position frames
@@ -179,6 +220,8 @@ public class HandManager : MonoBehaviour
         CardXFrames.AddKey(new Keyframe(3, cardPositionValues[3][0]));
         CardXFrames.AddKey(new Keyframe(4, cardPositionValues[4][0]));
 
+        // Generate inverted X position frames - useful when trying to get an animation time from a position, which can
+        // then be plugged into all other position/etc curves
         for (int i = 0; i < CardXFrames.length; i++)
         {
             Keyframe currentFrame = new Keyframe(CardXFrames.keys[i].value, CardXFrames.keys[i].time);
@@ -221,6 +264,9 @@ public class HandManager : MonoBehaviour
         CardScales.AddKey(new Keyframe(4, cardPositionValues[4][3]));
     }
 
+    /// <summary>
+    /// Deletes all the keyframes that were previously generated. Click this before generating new keyframes.
+    /// </summary>
     public void ClearKeyframes()
     {
         CardXFrames = new AnimationCurve();
@@ -236,6 +282,10 @@ public class HandManager : MonoBehaviour
 [CustomEditor(typeof(HandManager))]
 public class HandManagerGUI : Editor
 {
+    /// <summary>
+    /// Creates a custom GUI for the HandManager in the Unity editor. Allows us to insert buttons to generate and
+    /// clear animation keyframes with.
+    /// </summary>
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();

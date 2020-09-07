@@ -47,14 +47,19 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     public bool Shifting { get; private set; }
 
     /// <summary>
-    /// Used to calculate where the card should be based on where the mouse is dragging it from
+    /// Used to calculate where the mouse begins during a dragging interaction
     /// </summary>
-    private Vector3 mouseDiff;
+    private Vector2 mouseStart;
 
     /// <summary>
-    /// This card displayer's default screen position at the time an interaction begins
+    /// This card displayer's default position in world space at the time an interaction begins
     /// </summary>
-    public Vector3 restingPos { get; private set; }
+    public Vector3 RestingPosWorld { get; private set; }
+
+    /// <summary>
+    /// This card displayer's default position in local space at the time an interaction begins
+    /// </summary>
+    public Vector3 RestingPosLocal { get; private set; }
 
     /// <summary>
     /// This card displayer's default screen rotation in the player's hand
@@ -63,13 +68,18 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
     private Image myImage;
 
-    private void Start()
+    private void Awake()
     {
-        restingPos = new Vector3(transform.localPosition.x, transform.localPosition.y, transform.localPosition.z);
-        restingAngle = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);
         myImage = GetComponent<Image>();
     }
 
+    private void Start()
+    {
+        RestingPosWorld = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        RestingPosLocal = new Vector3(transform.localPosition.x, transform.localPosition.y, transform.localPosition.z);
+        restingAngle = new Vector3(transform.localEulerAngles.x, transform.localEulerAngles.y, transform.localEulerAngles.z);
+    }
+    
     /// <summary>
     /// Called when the user hovers over the card with their mouse
     /// </summary>
@@ -106,6 +116,9 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         ActiveCard = true;
     }
 
+    /// <summary>
+    /// "Turns off" the card both visually and mechanically when the card in that slot is used up
+    /// </summary>
     public void Deactivate()
     {
         ActiveCard = false;
@@ -128,6 +141,14 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         CarbonIcon.SetActive(on);
     }
 
+    /// <summary>
+    /// Moves the card over time from one position in the Hand to another. Used when other cards are clicked on
+    /// </summary>
+    /// <param name="position">The goal local position for the card</param>
+    /// <param name="rotation">The goal local rotation for the card</param>
+    /// <param name="scale">The goal local scale for the card</param>
+    /// <param name="shiftTime">The amount of time for the card to move. If unset, defaults to HandManager's default</param>
+    /// <returns></returns>
     public IEnumerator ShiftCard(Vector3 position, Quaternion rotation, Vector3 scale, float shiftTime = -1)
     {
         Shifting = true;
@@ -141,6 +162,7 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         Quaternion startRot = transform.localRotation;
         Vector3 startScale = new Vector3(transform.localScale.x, transform.localScale.y, transform.localScale.z);
 
+        // This is the loop that performs the incremental card shifting each update until shiftTime has elapsed
         while (elapsedTime < shiftTime)
         {
             float scaledTime = HandManager.Instance.CardShiftCurve.Evaluate(elapsedTime / shiftTime);
@@ -153,10 +175,12 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
             yield return new WaitForFixedUpdate();
         }
 
+        // After animation is finished, lock everything in place
         transform.localPosition = position;
         transform.localRotation = rotation;
         transform.localScale = scale;
-        restingPos = new Vector3(transform.localPosition.x, transform.localPosition.y, transform.localPosition.z);
+        RestingPosWorld = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        RestingPosLocal = new Vector3(transform.localPosition.x, transform.localPosition.y, transform.localPosition.z);
         Shifting = false;
     }
 
@@ -170,12 +194,18 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         HandManager.Instance.ShiftCenter(this);
     }
 
-    public void OnEndTouch()
+    /// <summary>
+    /// Checks if the current position of the touch/click is below the threshold of leading to a card scroll
+    /// <returns>True if card/mouse positioning doesn't yet meet scroll criteria. False if otherwise</returns>
+    /// </summary>
+    public bool TouchWithinCardScrollRatio()
     {
-        if (Input.touchSupported)
-        {
-            Centered = false;
-        }
+        Vector2 mouseMovement = new Vector2(Input.mousePosition.x - (Screen.width / 2), 
+            Input.mousePosition.y - (Screen.height / 2)) - mouseStart;
+
+        return mouseMovement.y / mouseMovement.x > HandManager.Instance.CardScrollRatio ||
+            (mouseMovement.x < HandManager.Instance.CardScrollThreshold &&
+            mouseMovement.x > -1 * HandManager.Instance.CardScrollThreshold);
     }
 
     /// <summary>
@@ -184,10 +214,12 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (ActiveCard && Centered)
-        {
-            mouseDiff =
-            new Vector3(Input.mousePosition.x - transform.position.x, Input.mousePosition.y - transform.position.y, 0);
-            restingPos = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+        { // Initialize values that will be necessary once a scroll is started in earnest
+            mouseStart = new Vector2(eventData.position.x - (Screen.width / 2), eventData.position.y - (Screen.height / 2));
+            Debug.Log("mouseStart is: " + mouseStart);
+            RestingPosWorld = new Vector3(transform.position.x, transform.position.y, transform.position.z);
+            RestingPosLocal = new Vector3(transform.localPosition.x, transform.localPosition.y, transform.localPosition.z);
+            HandManager.Instance.StartDraggingCards(false);
         }
     }
 
@@ -196,12 +228,22 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     public void OnDrag(PointerEventData eventData)
     {
-        if (ActiveCard && Centered && (Input.mousePosition.y - mouseDiff.y) > restingPos.y)
+        if (ActiveCard && Centered)
         {
-            transform.position = new Vector3(transform.position.x, Input.mousePosition.y - mouseDiff.y, transform.position.z);
-        } else
-        {
-            transform.position = new Vector3(transform.position.x, restingPos.y, transform.position.z);
+            float yMovement = eventData.position.y - (Screen.height / 2) - mouseStart.y;
+            if (!HandManager.Instance.Scrolling && ActiveCard && Centered && yMovement > 0)
+            { // Moves the card up towards the play square if an upward movement is detected
+                transform.position = new Vector3(RestingPosWorld.x, RestingPosWorld.y + yMovement, RestingPosWorld.z);
+            } else
+            {
+                transform.position = new Vector3(RestingPosWorld.x, RestingPosWorld.y, RestingPosWorld.z);
+            }
+
+            if (!TouchWithinCardScrollRatio())
+            { // Scrolls the cards if a predominantly sideways movement is detected
+                ToggleMoneyAndCarbonDisplays(false);
+                HandManager.Instance.DragCards();
+            }
         }
     }
 
@@ -210,29 +252,38 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     public void OnEndDrag(PointerEventData eventData)
     {
-        // put card back in its hand position
-        transform.position = restingPos;
-
-        PointerEventData pointerData = new PointerEventData(EventSystem.current);
-        pointerData.position = Input.mousePosition;
-        // Test to see if the user dropped the card in the card play square - if so, the user wants to play this card.
-        // We test by casting a ray on all UI objects under the mouse position, and seeing if the ray hits the square.
-        List<RaycastResult> raycastResults = new List<RaycastResult>();
-        EventSystem.current.RaycastAll(pointerData, raycastResults);
-        for (int i = 0; i < raycastResults.Count; i++)
+        if (ActiveCard && Centered)
         {
-            if (raycastResults[i].gameObject.CompareTag("Card Play Square"))
+            // put card back in its hand position, if the card isn't being dragged sideways
+            if (TouchWithinCardScrollRatio() && !HandManager.Instance.Scrolling)
             {
-                // First, we make sure that this card is valid to be played
-                if (GameManager.Instance.ValidCard(MyCard))
+                transform.position = RestingPosWorld;
+
+                PointerEventData pointerData = new PointerEventData(EventSystem.current);
+                pointerData.position = new Vector2(eventData.position.x, eventData.position.y);
+                // Test to see if the user dropped the card in the card play square - if so, the user wants to play this card.
+                // We test by casting a ray on all UI objects under the mouse position, and seeing if the ray hits the square.
+                List<RaycastResult> raycastResults = new List<RaycastResult>();
+                EventSystem.current.RaycastAll(pointerData, raycastResults);
+                for (int i = 0; i < raycastResults.Count; i++)
                 {
-                    // If valid, we add the card to the card catcher square's collection
-                    // and tell the GameManager to play this card.
-                    CardCatcher.Instance.CatchCard(this);
-                    Deactivate();
-                    GameManager.Instance.UseCardByUI(MyCard);
+                    if (raycastResults[i].gameObject.CompareTag("Card Play Square"))
+                    {
+                        // First, we make sure that this card is valid to be played
+                        if (GameManager.Instance.ValidCard(MyCard))
+                        {
+                            // If valid, we add the card to the card catcher square's collection
+                            // and tell the GameManager to play this card.
+                            CardCatcher.Instance.CatchCard(this);
+                            Deactivate();
+                            GameManager.Instance.UseCardByUI(MyCard);
+                        }
+                        break;
+                    }
                 }
-                break;
+            } else
+            { // If we do detect a sideways card scroll however, get the HandManager to take care of that
+                HandManager.Instance.StopDraggingCards();
             }
         }
     }

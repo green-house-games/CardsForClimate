@@ -497,7 +497,7 @@ public class GameManager : MonoBehaviour
             //Display new playerhand
             if (PlayerHasHopeCard())
             {
-                HandManager.Instance.SetCardDisplays(newCards);
+                HandManager.Instance.SetCardDisplays(newCards, true);
                 PrintPlayerHand();
             } else
             {
