@@ -34,10 +34,31 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     public bool Hovered { get; set; }
 
+    private bool centered;
+
     /// <summary>
     /// Whether or not this card is currently set to be the center card
     /// </summary>
-    public bool Centered { get; set; }
+    public bool Centered
+    {
+        get { return centered; }
+        set {
+            centered = value;
+            if (centered)
+            {
+                if (DisplayCardIndex == 0) // minimum value - leftmost card in hand
+                {
+                    HandManager.Instance.SetCardDirectionIndicators(HandManager.CardDirection.CARDS_RIGHT);
+                } else if (DisplayCardIndex == 4) // maximum value - rightmost card in hand
+                {
+                    HandManager.Instance.SetCardDirectionIndicators(HandManager.CardDirection.CARDS_LEFT);
+                } else // any other value - cards available on both sides of this one
+                {
+                    HandManager.Instance.SetCardDirectionIndicators(HandManager.CardDirection.CARDS_BOTH);
+                }
+            }
+        }
+    }
 
     public bool ActiveCard { get; set; } = false;
 

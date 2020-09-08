@@ -25,6 +25,24 @@ public class HandManager : MonoBehaviour
     /// </summary>
     public float CardScrollThreshold = 30;
 
+    [Tooltip("The onscreen indicator that there are more cards in hand to the left of the screen")]
+    public GameObject MoreCardsLeft;
+
+    [Tooltip("The onscreen indicator that there are more cards in hand to the right of the screen")]
+    public GameObject MoreCardsRight;
+
+    /// <summary>
+    /// Represents which direction(s) there are extra cards offscreen in
+    /// </summary>
+    public enum CardDirection
+    {
+        NO_CARDS,
+        CARDS_LEFT,
+        CARDS_RIGHT,
+        CARDS_BOTH
+    }
+
+    [Header("Card animation attributes")]
     [Tooltip("The time, in seconds, that a card shifting its hand position will be in motion for.")]
     public float CardShiftTime = 0.75f;
 
@@ -92,6 +110,36 @@ public class HandManager : MonoBehaviour
                 card.SetCardAndDisplay(newCards[0]);
                 newCards.RemoveAt(0);
             }
+        }
+    }
+
+    /// <summary>
+    /// Turns on/off the extra card indicators at the side of the screen, whenever a new card becomes centered
+    /// </summary>
+    /// <param name="direction"></param>
+    public void SetCardDirectionIndicators(CardDirection direction)
+    {
+        switch (direction)
+        {
+            case CardDirection.NO_CARDS:
+                MoreCardsLeft.SetActive(false);
+                MoreCardsRight.SetActive(false);
+                break;
+            case CardDirection.CARDS_LEFT:
+                MoreCardsLeft.SetActive(true);
+                MoreCardsRight.SetActive(false);
+                break;
+            case CardDirection.CARDS_RIGHT:
+                MoreCardsLeft.SetActive(false);
+                MoreCardsRight.SetActive(true);
+                break;
+            case CardDirection.CARDS_BOTH:
+                MoreCardsLeft.SetActive(true);
+                MoreCardsRight.SetActive(true);
+                break;
+            default:
+                Debug.LogError("Unrecognized card direction value " + direction);
+                break;
         }
     }
 
