@@ -536,7 +536,7 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Checks if the player must play a hope card in their next play.
+    /// Checks if the player must play a hope card in their next play. This is not currently used.
     /// </summary>
     public bool PlayerMustPlayHope() {
         return (Hope == MIN_HOPE + 1 && activePlayerCardCount == 0);
@@ -544,7 +544,7 @@ public class GameManager : MonoBehaviour
 
 
     /// <summary>
-    /// Checks if any card in the player's hand has positive hope.
+    /// Checks if any card in the player's hand has positive hope. This is not currently used.
     /// </summary>
     public bool PlayerHasHopeCard()
     {
@@ -586,11 +586,6 @@ public class GameManager : MonoBehaviour
         if (Momentum > 0 && playedCard.momentum <= 0)
         {
             Debug.Log("Card played must have momentum during a momentum run.");
-            return false;
-        }
-
-        if (PlayerMustPlayHope() && playedCard.hope <= 0) {
-            Debug.Log("A positive hope card must be played, that card is not valid try again");
             return false;
         }
 
