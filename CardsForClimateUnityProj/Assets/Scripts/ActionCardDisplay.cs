@@ -275,13 +275,14 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         if (ActiveCard && Centered)
         {
-            // put card back in its hand position, if the card isn't being dragged sideways
+            // Put card back in its hand position, if the card isn't being dragged sideways
             if (TouchWithinCardScrollRatio() && !HandManager.Instance.Scrolling)
             {
                 transform.position = RestingPosWorld;
 
                 PointerEventData pointerData = new PointerEventData(EventSystem.current);
                 pointerData.position = new Vector2(eventData.position.x, eventData.position.y);
+
                 // Test to see if the user dropped the card in the card play square - if so, the user wants to play this card.
                 // We test by casting a ray on all UI objects under the mouse position, and seeing if the ray hits the square.
                 List<RaycastResult> raycastResults = new List<RaycastResult>();

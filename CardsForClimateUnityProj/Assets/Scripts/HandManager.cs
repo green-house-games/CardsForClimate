@@ -46,7 +46,7 @@ public class HandManager : MonoBehaviour
     [Tooltip("The time, in seconds, that a card shifting its hand position will be in motion for.")]
     public float CardShiftTime = 0.75f;
 
-    [Tooltip("The arc of movement that a card follows whil shifting.")]
+    [Tooltip("The arc of movement that a card follows while shifting.")]
     public AnimationCurve CardShiftCurve;
 
     [Tooltip("The x positions that a card can have, based on distance from center.")]
@@ -86,7 +86,7 @@ public class HandManager : MonoBehaviour
         Instance = this;
 
         for (int i = 0; i < transform.childCount; i++)
-        { // Initialize all card displayer objects for interactions to come
+        {   // Initialize all card displayer objects for interactions to come
             ActionCardDisplay thisDisplay = transform.GetChild(i).GetComponent<ActionCardDisplay>();
             cardDisplayers.Add(thisDisplay);
             thisDisplay.ToggleMoneyAndCarbonDisplays(thisDisplay.DisplayCardIndex == ActiveCardIndex);
@@ -156,6 +156,8 @@ public class HandManager : MonoBehaviour
                 card.Centered = false;
                 card.ToggleMoneyAndCarbonDisplays(false);
             }
+
+            // Perform animation of cards shifting
             int cardDifference = card.DisplayCardIndex - centeredCard.DisplayCardIndex;
             StartCoroutine(card.ShiftCard(
                 new Vector3(CardXFrames.Evaluate(cardDifference), CardYFrames.Evaluate(cardDifference), 0), 
@@ -165,7 +167,7 @@ public class HandManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Called when the hand feels someone begin to drag it to the side. Initializes values for the cards to drag/scroll
+    /// Called when the hand feels someone begining to drag it to the side. Initializes values for the cards to drag/scroll
     /// </summary>
     /// <param name="turnOffCarbon">Do we want to turn off money/carbon displays on cards?</param>
     public void StartDraggingCards(bool turnOffCarbon = true)
@@ -206,8 +208,14 @@ public class HandManager : MonoBehaviour
         List<int> currentIndices = new List<int>(displayIndices);
         foreach (ActionCardDisplay card in cardDisplayers)
         {
+            // Times represent the time axis of an animation curve, stating how far along a curve a card is while moving
             float unroundedTime = InvertedCardXFrames.Evaluate(card.transform.localPosition.x);
+
+            // New position along an animation curve a card should go - clamped to ensure the cards end up at good resting positions
             int newTime = Mathf.Clamp(Mathf.RoundToInt(unroundedTime), currentIndices.Min(), currentIndices.Max());
+
+            // If new position is not in list of available hand positions, move it either up or down 
+            // Done to prevent two cards from ending up in the same position, but doesn't always work
             if (!currentIndices.Contains(newTime))
             {
                 newTime = Mathf.FloorToInt(unroundedTime);
