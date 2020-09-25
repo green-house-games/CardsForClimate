@@ -188,14 +188,15 @@ public class HandManager : MonoBehaviour
     /// </summary>
     public void DragCards()
     {
-        Scrolling = true;
-        Vector3 mouseDiff = new Vector3(Input.mousePosition.x - (Screen.width/2), Input.mousePosition.y - (Screen.height/2)) - mouseStart;
-        foreach (ActionCardDisplay card in cardDisplayers) {
-            float newTime = InvertedCardXFrames.Evaluate(mouseDiff.x + card.RestingPosLocal.x);
-            card.transform.localPosition = new Vector3(CardXFrames.Evaluate(newTime), CardYFrames.Evaluate(newTime), 0);
-            card.transform.localRotation = Quaternion.Euler(0, 0, CardZRotationFrames.Evaluate(newTime));
-            card.transform.localScale = new Vector3(CardScales.Evaluate(newTime), CardScales.Evaluate(newTime), 1);
-        }
+            Scrolling = true;
+            Vector3 mouseDiff = new Vector3(Input.mousePosition.x - (Screen.width / 2), Input.mousePosition.y - (Screen.height / 2)) - mouseStart;
+            foreach (ActionCardDisplay card in cardDisplayers)
+            {
+                float newTime = InvertedCardXFrames.Evaluate(mouseDiff.x + card.RestingPosLocal.x);
+                card.transform.localPosition = new Vector3(CardXFrames.Evaluate(newTime), CardYFrames.Evaluate(newTime), 0);
+                card.transform.localRotation = Quaternion.Euler(0, 0, CardZRotationFrames.Evaluate(newTime));
+                card.transform.localScale = new Vector3(CardScales.Evaluate(newTime), CardScales.Evaluate(newTime), 1);
+            }
     }
 
     /// <summary>
@@ -248,15 +249,15 @@ public class HandManager : MonoBehaviour
     /// </summary>
     private Dictionary<int, float[]> cardPositionValues = new Dictionary<int, float[]>
     {
-        { -4, new float[5] {-860, -450, 400, .3f, .3f } },
-        { -3, new float[5] {-660, -300, 390, .5f, .5f} },
-        { -2, new float[5] {-460, -150, 380, .7f, .7f} },
-        { -1, new float[5] {-260, -46, 370, 1, 1} },
+        { -4, new float[5] {-940, -450, 400, .3f, .3f } },
+        { -3, new float[5] {-740, -300, 390, .5f, .5f} },
+        { -2, new float[5] {-540, -150, 380, .7f, .7f} },
+        { -1, new float[5] {-310, -46, 370, 1, 1} },
         { 0, new float[5] {0, 0, 360, 1.15f, 1.15f} },
-        { 1, new float[5] {260, -46, 350, 1, 1} },
-        { 2, new float[5] {460, -150, 340, .7f, .7f} },
-        { 3, new float[5] {660, -300, 330, .5f, .5f} },
-        { 4, new float[5] {860, -450, 320, .3f, .3f} },
+        { 1, new float[5] {310, -46, 350, 1, 1} },
+        { 2, new float[5] {540, -150, 340, .7f, .7f} },
+        { 3, new float[5] {740, -300, 330, .5f, .5f} },
+        { 4, new float[5] {940, -450, 320, .3f, .3f} },
     };
 
     /// <summary>

@@ -4,6 +4,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System;
 
 /// <summary>
 /// Displays information about action cards in UI form.
@@ -13,6 +14,11 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// <summary>
     /// The ActionCard data object that underpins all this card displayer's information.
     /// </summary>
+    /// 
+
+    public static ActionCardDisplay Instance;
+
+
     public ActionCard MyCard { get; private set; }
 
     [Header("Information Slots and Icons")]
@@ -92,6 +98,8 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     private void Awake()
     {
         myImage = GetComponent<Image>();
+        if (Instance != null) Debug.LogError("More than one instance of ActionCardDisplay present");
+        Instance = this;
     }
 
     private void Start()
@@ -116,7 +124,8 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     {
         Hovered = false;
     }
-        
+     
+
     /// <summary>
     /// Fills in the card information and turns on the proper icons on the card displayer.
     /// </summary>
@@ -249,6 +258,7 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     public void OnDrag(PointerEventData eventData)
     {
+        //makes it so that you can't move sideways while moving the card vertically
         if (ActiveCard && Centered)
         {
             float yMovement = eventData.position.y - (Screen.height / 2) - mouseStart.y;
