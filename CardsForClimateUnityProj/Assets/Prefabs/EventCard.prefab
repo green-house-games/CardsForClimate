@@ -215,7 +215,6 @@ MonoBehaviour:
   Money: {fileID: 856729096806810477}
   Carbon: {fileID: 3184812570152221287}
   HopeIcon: {fileID: 4287258003571184705}
-  CardArt: {fileID: 0}
 --- !u!1 &3184812570152221287
 GameObject:
   m_ObjectHideFlags: 0
@@ -554,7 +553,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4287258003267830486}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 314.88544}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.3982292, y: 0.39822912, z: 0.39822915}
   m_Children:
   - {fileID: 738404266444569516}
@@ -628,7 +627,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4287258003451568528}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 314.88544}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.32206643, y: 0.2415498, z: 0.3220664}
   m_Children:
   - {fileID: 2317281191379594684}
@@ -702,7 +701,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4287258003452326583}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 314.88544}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.4431516, y: 0.54118186, z: 0.41232902}
   m_Children: []
   m_Father: {fileID: 6389406334267491034}
@@ -775,7 +774,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4287258003571184705}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 314.88544}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.37484455, y: 0.37484446, z: 0.3748445}
   m_Children: []
   m_Father: {fileID: 6389406334267491034}
