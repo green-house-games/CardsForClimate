@@ -15,7 +15,6 @@ public class GameManager : MonoBehaviour
         set { // Makes sure we set the slider UI value whenever Money is updated
             money = value;
             MoneySlider.value = value;
-            if (money <= 0) GameEnd();
         }
     }
 
@@ -28,7 +27,6 @@ public class GameManager : MonoBehaviour
         set { // Makes sure we set the slider UI value whenever Carbon is updated
             carbon = value;
             CarbonSlider.value = value;
-            if (carbon >= 30) GameEnd();
         }
     }
 
@@ -62,7 +60,7 @@ public class GameManager : MonoBehaviour
         set {
             if (value <= MIN_HOPE) {
                 hope = MIN_HOPE;
-                GameEnd();
+                // GameEnd();
             }
             else if (value >= MAX_HOPE) hope = MAX_HOPE;
             else hope = value;
@@ -267,17 +265,25 @@ public class GameManager : MonoBehaviour
 
         HandManager.Instance.SetCardDisplays(newCards);
         PrintPlayerHand();
+
+        // The game should not *automatically* end here
+        // Left this in in case its used in the future 
+        /*
         if (PlayerMustPlayHope() && !PlayerHasHopeCard() && Money < 5)
         {
+            
             Debug.Log("There are no valid hope cards in your hand and you " +
                       "do not have enough money to redraw your hand. You lose");
-            gameOver = true;
-            TurnActive = false;
-            EndTurn();
+            // gameOver = true;
+            // TurnActive = false;
+            // EndTurn();
         } else
         {
             TurnActive = true;
         }
+        */
+
+        TurnActive = true;
         CurrentTurnNumber += 1;
     }
 
@@ -322,13 +328,16 @@ public class GameManager : MonoBehaviour
             //Card played has momentum
             else
             {
-                Momentum += 1;
+                Momentum += 1;    
+                
                 //If player has no other momentum cards to play, end turn
                 if (!PlayerCardsMomentum())
                 {
+                    // If the player sees they have no more mementum cards to play, they can end the turn themselves
                     Debug.Log("Out of momentum cards to play");
-                    turnActive = false;
-                    EndTurn();
+                    turnActive = true;
+                    //turnActive = false;
+                    //EndTurn();
                 }
                 else
                 {
@@ -445,8 +454,26 @@ public class GameManager : MonoBehaviour
         //Replenish player hand
         DrawCards();
 
-        //Check the game loss conditions
-        GameEnd();
+        // Check game end conditions
+
+        // Check if money is less than zero
+        if (Money < 0)
+        {
+            GameEnd();
+        }
+
+        // Check if carbon is 30 or greater
+        if (Carbon >= 30)
+        {
+            GameEnd();
+        }
+
+        // Check if all hope is gone
+        if (Hope <= MIN_HOPE)
+        {
+            GameEnd();
+        }
+
 
         //If game is not over, begin next turn
         if (!gameOver)
@@ -485,6 +512,13 @@ public class GameManager : MonoBehaviour
         {
             //Take away 5 money from player
             Money -= 5;
+
+            // If money is less than 0 now, end game
+            if (Money < 0)
+            {
+                GameEnd();
+            }
+
             //Clear the players hand
             do
             {
@@ -501,6 +535,11 @@ public class GameManager : MonoBehaviour
                 PrintPlayerHand();
             } else
             {
+                // I don't think there should be any automatic turn ending or evaluation happening here
+                // If they *see* they have no hope cards and are going to lose, let them 
+                // I kept this code commented here in case we find a use for it later
+
+                /*
                 //Display message based on if the player has enough money for redraw
                 if (Money >= 5)
                 {
@@ -515,6 +554,7 @@ public class GameManager : MonoBehaviour
                     Debug.Log("There are no valid hope cards in your hand and " +
                         "you do not have enough money to redraw your hand. You lose");
                 }
+                */
             }
         }
 ;    }
@@ -547,7 +587,7 @@ public class GameManager : MonoBehaviour
 
 
     /// <summary>
-    /// Checks if any card in the player's hand has positive hope. This is not currently used.
+    /// Checks if any card in the player's hand has positive hope.
     /// </summary>
     public bool PlayerHasHopeCard()
     {
