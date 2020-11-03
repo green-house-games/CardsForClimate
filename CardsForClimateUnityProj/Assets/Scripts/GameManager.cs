@@ -454,7 +454,7 @@ public class GameManager : MonoBehaviour
         //Replenish player hand
         DrawCards();
 
-        // Check game end conditions
+        // CHECK GAME END CONDITIONS
 
         // Check if money is less than zero
         if (Money < 0)
