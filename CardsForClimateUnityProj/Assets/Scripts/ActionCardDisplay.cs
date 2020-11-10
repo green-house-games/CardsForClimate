@@ -140,10 +140,15 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         Carbon.GetComponent<TextMeshProUGUI>().text = 
                                                 (thisCard.costCarbon > 0 ? "+" : "") + thisCard.costCarbon.ToString();
         CardArt.GetComponent<Image>().sprite = thisCard.cardImage;
+        CardArt.GetComponent<Image>().color = new Color(1, 1, 1, 1);
         MomentumIcon.SetActive(thisCard.momentum > 0);
         HopeIcon.SetActive(thisCard.hope > 0);
         myImage.color = new Color(1, 1, 1, 1);
         ActiveCard = true;
+        if (Centered)
+        {
+            ToggleMoneyAndCarbonDisplays(true);
+        }
     }
 
     /// <summary>
@@ -156,7 +161,9 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         Description.GetComponent<TextMeshProUGUI>().text = "";
         Money.GetComponent<TextMeshProUGUI>().text = "";
         Carbon.GetComponent<TextMeshProUGUI>().text = "";
-        CardArt.GetComponent<Image>().sprite = null;
+        MoneyIcon.SetActive(false);
+        CarbonIcon.SetActive(false);
+        CardArt.GetComponent<Image>().color = new Color(1, 1, 1, 0f);
         MomentumIcon.SetActive(false);
         HopeIcon.SetActive(false);
         myImage.color = new Color(1, 1, 1, .4f);
@@ -167,8 +174,12 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     public void ToggleMoneyAndCarbonDisplays(bool on)
     {
-        MoneyIcon.SetActive(on);
-        CarbonIcon.SetActive(on);
+        // Prevent played cards from having these icons
+        if (ActiveCard)
+        {
+            MoneyIcon.SetActive(on);
+            CarbonIcon.SetActive(on);
+        }
     }
 
     /// <summary>
