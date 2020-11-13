@@ -530,17 +530,19 @@ public class GameManager : MonoBehaviour
             DrawCards();
 
             //Display new playerhand
+            HandManager.Instance.SetCardDisplays(newCards, true);
+            PrintPlayerHand();
+
+            // I don't think there should be any automatic turn ending or evaluation happening here
+            // If they *see* they have no hope cards and are going to lose, let them 
+            // I kept this code commented here in case we find a use for it later
+            /*
             if (PlayerHasHopeCard())
             {
                 HandManager.Instance.SetCardDisplays(newCards, true);
                 PrintPlayerHand();
             } else
             {
-                // I don't think there should be any automatic turn ending or evaluation happening here
-                // If they *see* they have no hope cards and are going to lose, let them 
-                // I kept this code commented here in case we find a use for it later
-
-                /*
                 //Display message based on if the player has enough money for redraw
                 if (Money >= 5)
                 {
@@ -555,8 +557,8 @@ public class GameManager : MonoBehaviour
                     Debug.Log("There are no valid hope cards in your hand and " +
                         "you do not have enough money to redraw your hand. You lose");
                 }
-                */
             }
+            */
         }
 ;    }
 
