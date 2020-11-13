@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
@@ -12,9 +13,9 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public int Money {
         get { return money; }
-        set { // Makes sure we set the slider UI value whenever Money is updated
+        set { // Makes sure we set the money UI value whenever Money is updated
             money = value;
-            MoneySlider.value = value;
+            MoneyText.text = ((int)value).ToString();
         }
     }
 
@@ -108,7 +109,7 @@ public class GameManager : MonoBehaviour
     GameObject EndTextHolder;
 
     [Header("Game UI Attributes")]
-    public Slider MoneySlider;
+    public TextMeshProUGUI MoneyText;
     public Slider CarbonSlider;
     public Button RedrawButton;
 
