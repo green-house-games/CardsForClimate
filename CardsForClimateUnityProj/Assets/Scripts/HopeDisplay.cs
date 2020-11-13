@@ -16,19 +16,19 @@ public class HopeDisplay : MonoBehaviour
     /// </summary>
     public static HopeDisplay Instance;
 
-    Image displayedImage;
+    [Header("Hope Icons")]
+    public Image HopeIcon1;
+    public Image HopeIcon2;
+    public Image HopeIcon3;
 
-    [Header("Icon")]
-    public Sprite EmptyHopeIcon;
-    public Sprite OneHopeIcon;
-    public Sprite TwoHopeIcon;
-    public Sprite FullHopeIcon;
+    [Header("Sprites")]
+    public Sprite HopeSprite;
+    public Sprite NoHopeSprite;
 
     private void Awake()
     {
         if (Instance != null) Debug.LogError("More than one instance of HopeDisplay present");
         Instance = this;
-        displayedImage = GetComponent<Image>();
     }
 
     /// <summary>
@@ -38,16 +38,24 @@ public class HopeDisplay : MonoBehaviour
         switch (count)
         {
             case HopeCount.Full:
-                displayedImage.sprite = FullHopeIcon;
+                HopeIcon1.sprite = HopeSprite;
+                HopeIcon2.sprite = HopeSprite;
+                HopeIcon3.sprite = HopeSprite;
                 break;
             case HopeCount.Two:
-                displayedImage.sprite = TwoHopeIcon;
-                break;
-            case HopeCount.Empty:
-                displayedImage.sprite = EmptyHopeIcon;
+                HopeIcon1.sprite = NoHopeSprite;
+                HopeIcon2.sprite = HopeSprite;
+                HopeIcon3.sprite = HopeSprite;
                 break;
             case HopeCount.One:
-                displayedImage.sprite = OneHopeIcon;
+                HopeIcon1.sprite = NoHopeSprite;
+                HopeIcon2.sprite = NoHopeSprite;
+                HopeIcon3.sprite = HopeSprite;
+                break;
+            case HopeCount.Empty:
+                HopeIcon1.sprite = NoHopeSprite;
+                HopeIcon2.sprite = NoHopeSprite;
+                HopeIcon3.sprite = NoHopeSprite;
                 break;
         }
     }

@@ -17,19 +17,19 @@ public class MomentumDisplay : MonoBehaviour
     /// </summary>
     public static MomentumDisplay Instance;
 
-    Image displayedImage;
-    
-    [Header("Icon")]
-    public Sprite EmptyMomentumIcon;
-    public Sprite OneMomentumIcon;
-    public Sprite TwoMomentumIcon;
-    public Sprite FullMomentumIcon;
+    [Header("Momentum Icons")]
+    public Image MomentumIcon1;
+    public Image MomentumIcon2;
+    public Image MomentumIcon3;
+
+    [Header("Sprites")]
+    public Sprite MomentumSprite;
+    public Sprite NoMomentumSprite;
 
     private void Awake()
     {
         if (Instance != null) Debug.LogError("More than one instance of MomentumDisplay present");
         Instance = this;
-        displayedImage = GetComponent<Image>();
     }
 
     /// <summary>
@@ -39,16 +39,24 @@ public class MomentumDisplay : MonoBehaviour
         switch (count)
         {
             case MomentumCount.Empty:
-                displayedImage.sprite = EmptyMomentumIcon;
+                MomentumIcon1.sprite = NoMomentumSprite;
+                MomentumIcon2.sprite = NoMomentumSprite;
+                MomentumIcon3.sprite = NoMomentumSprite;
                 break;
             case MomentumCount.One:
-                displayedImage.sprite = OneMomentumIcon;
+                MomentumIcon1.sprite = NoMomentumSprite;
+                MomentumIcon2.sprite = NoMomentumSprite;
+                MomentumIcon3.sprite = MomentumSprite;
                 break;
             case MomentumCount.Two:
-                displayedImage.sprite = TwoMomentumIcon;
+                MomentumIcon1.sprite = NoMomentumSprite;
+                MomentumIcon2.sprite = MomentumSprite;
+                MomentumIcon3.sprite = MomentumSprite;
                 break;
             case MomentumCount.Full:
-                displayedImage.sprite = FullMomentumIcon;
+                MomentumIcon1.sprite = MomentumSprite;
+                MomentumIcon2.sprite = MomentumSprite;
+                MomentumIcon3.sprite = MomentumSprite;
                 break;
         }
     }
