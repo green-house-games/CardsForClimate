@@ -214,11 +214,6 @@ public class GameManager : MonoBehaviour
 
         ShuffleActionCards(LastHalfActionDeck);
         CurrentActionDeck.AddRange(LastHalfActionDeck);
-        
-        for (int i=0; i < CurrentActionDeck.Count; i++)
-        {
-            Debug.Log(CurrentActionDeck[i].costCarbon);
-        }
     }
 
     /// <summary>
