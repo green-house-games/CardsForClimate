@@ -84,6 +84,8 @@ public class GameManager : MonoBehaviour
     private List<ActionCard> newCards;
     public List<Card> PlayedCards { get; private set; }
 
+    public GameObject Greenhouse;
+
     //Keeps track of what cards come next from the decks, receives data from master lists
     public List<EventCard> CurrentEventDeck { get; private set; }
     public List<ActionCard> CurrentActionDeck { get; private set; }
@@ -139,6 +141,8 @@ public class GameManager : MonoBehaviour
 
         //Current cards in player's hand and previously played cards
         PlayerHand = new List<ActionCard>();
+
+        //keeps track of played cards for images in background greenhouse
         PlayedCards = new List<Card>();
 
         //Keeps track of what cards come next from the decks, receives data from master lists
@@ -486,7 +490,14 @@ public class GameManager : MonoBehaviour
         //Clear activeplayercards and reset counter
         for(int j = 0; j < activePlayerCards.Length; j++)
         {
-            activePlayerCards[j] = null;
+            if (activePlayerCards[j] != null)
+            {
+                Image greenhouseWindow = Greenhouse.transform.GetChild(PlayedCards.Count).GetComponent<Image>();
+                greenhouseWindow.enabled = true;
+                Greenhouse.transform.GetChild(PlayedCards.Count).GetComponent<Image>().sprite = activePlayerCards[j].cardImage;
+                PlayedCards.Add(activePlayerCards[j]);
+                activePlayerCards[j] = null;
+            }
         }
         CardCatcher.Instance.ClearCaughtCards();
         //reset counter
