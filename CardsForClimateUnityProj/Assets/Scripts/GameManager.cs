@@ -86,6 +86,8 @@ public class GameManager : MonoBehaviour
     //Keeps track of what cards come next from the decks, receives data from master lists
     public List<EventCard> CurrentEventDeck { get; private set; }
     public List<ActionCard> CurrentActionDeck { get; private set; }
+    // Potentially change later?
+    private List<ActionCard> LastHalfActionDeck;
 
     //Active event card
     public EventCard activeEventCard;
@@ -140,6 +142,7 @@ public class GameManager : MonoBehaviour
         //Keeps track of what cards come next from the decks, receives data from master lists
         CurrentEventDeck = new List<EventCard>();
         CurrentActionDeck = new List<ActionCard>();
+        LastHalfActionDeck = new List<ActionCard>();
 
         //Active event card
         activeEventCard = null;
@@ -176,6 +179,17 @@ public class GameManager : MonoBehaviour
         BeginTurn();
     }
 
+    private void ShuffleActionCards(List<ActionCard> list)
+    {
+        for (int i = 0; i < list.Count; i++)
+        {
+            ActionCard temp = list[i];
+            int randomIndex = Random.Range(i, list.Count);
+            list[i] = list[randomIndex];
+            list[randomIndex] = temp;
+        }
+    }
+
     /// <summary>
     /// Turns the entire list of action cards into a shuffled deck
     /// </summary>
@@ -186,10 +200,25 @@ public class GameManager : MonoBehaviour
             //Generate random number to choose a card from master queue
             int ranNum = Random.Range(0, CardDataCompiler.Instance.MasterActionDeck.Count);
             //Add chosen card to queue of action deck that player draws from
-            CurrentActionDeck.Add(CardDataCompiler.Instance.MasterActionDeck[ranNum]);
+            ActionCard tempCard = CardDataCompiler.Instance.MasterActionDeck[ranNum];
+            if (CurrentActionDeck.Count < 18 && tempCard.costCarbon > -3)
+            {
+                CurrentActionDeck.Add(tempCard);
+            } else
+            {
+                LastHalfActionDeck.Add(tempCard);
+            }
             //Remove added card from master queue to avoid duplicates
             CardDataCompiler.Instance.MasterActionDeck.RemoveAt(ranNum);
         } while (CardDataCompiler.Instance.MasterActionDeck.Count > 0);
+
+        ShuffleActionCards(LastHalfActionDeck);
+        CurrentActionDeck.AddRange(LastHalfActionDeck);
+        
+        for (int i=0; i < CurrentActionDeck.Count; i++)
+        {
+            Debug.Log(CurrentActionDeck[i].costCarbon);
+        }
     }
 
     /// <summary>
@@ -206,6 +235,9 @@ public class GameManager : MonoBehaviour
             //Remove added card from master queue to avoid duplicates
             CardDataCompiler.Instance.MasterEventDeck.RemoveAt(ranNum);
         } while (CardDataCompiler.Instance.MasterEventDeck.Count > 0);
+
+        
+            //EventCard epicBad = CardDataCompiler.Instance.SuperNegativeEventCards[0];
     }
 
     /// <summary>
@@ -430,9 +462,8 @@ public class GameManager : MonoBehaviour
         //Check if the card has a super event card
         if (CardDataCompiler.Instance.SuperNegativeEventCards.ContainsKey(activeEventCard.cardName))
         {
-            //Increment the cards supercastrophe potential
-            CurrentEventDeck.Insert(Random.Range(0, CurrentEventDeck.Count),
-                CardDataCompiler.Instance.SuperNegativeEventCards[activeEventCard.cardName]);
+            //Add the super bad event card to the event deck to be drawn next
+            CurrentEventDeck.Insert(0, CardDataCompiler.Instance.SuperNegativeEventCards[activeEventCard.cardName]);
         }
 
 
@@ -450,7 +481,7 @@ public class GameManager : MonoBehaviour
         //check momentum for super positive event and if there are remaining super positive cards to be played
         if(activePlayerCardCount >= 3 && CardDataCompiler.Instance.PositiveEventCards.Count > 0)
         {
-            CurrentEventDeck.Insert(Random.Range(0, CurrentEventDeck.Count),
+            CurrentEventDeck.Insert(0,
                 CardDataCompiler.Instance.PositiveEventCards[
                     Random.Range(0, CardDataCompiler.Instance.PositiveEventCards.Count)]);
         }
