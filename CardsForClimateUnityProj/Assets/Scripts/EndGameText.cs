@@ -32,6 +32,8 @@ public class EndGameText : MonoBehaviour
                 return "The planet has run out of time! Game Over";
             case 3:
                 return "People have lost too much to continue! Game Over";
+            case 4:
+                return "You ran out of time!";
             default:
                 return "You've Lost! Game Over";
         }

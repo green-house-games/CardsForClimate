@@ -28,6 +28,9 @@ public class EventCardDisplay : MonoBehaviour
     // Commenting CardArt out because it isn't used in the current design, but may be used in future designs
     //public GameObject CardArt;
 
+    public Vector3 startPos;
+    public Vector3 endPos;
+
     private Animator myAnimator;
 
     private void Awake()
@@ -36,6 +39,18 @@ public class EventCardDisplay : MonoBehaviour
         Instance = this;
 
         myAnimator = GetComponent<Animator>();
+    }
+
+    private void Start()
+    {
+        startPos = transform.localPosition;
+        endPos = new Vector3(-55.9f, -672, 0);
+    }
+
+    private void Update()
+    {
+        transform.localPosition = Vector3.Lerp(endPos, startPos, GameManager.Instance.TimeRemaining / GameManager.Instance.TimeBetweenTurns);
+        Debug.Log(transform.localPosition);
     }
 
     /// <summary>

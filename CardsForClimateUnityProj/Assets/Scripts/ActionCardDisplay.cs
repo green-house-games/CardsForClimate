@@ -11,14 +11,6 @@ using System;
 /// </summary>
 public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    /// <summary>
-    /// The ActionCard data object that underpins all this card displayer's information.
-    /// </summary>
-    /// 
-
-    public static ActionCardDisplay Instance;
-
-
     public ActionCard MyCard { get; private set; }
 
     [Header("Information Slots and Icons")]
@@ -98,8 +90,6 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     private void Awake()
     {
         myImage = GetComponent<Image>();
-        if (Instance != null) Debug.LogError("More than one instance of ActionCardDisplay present");
-        Instance = this;
     }
 
     private void Start()
@@ -244,7 +234,7 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         Vector2 mouseMovement = new Vector2(Input.mousePosition.x - (Screen.width / 2), 
             Input.mousePosition.y - (Screen.height / 2)) - mouseStart;
 
-        return mouseMovement.y / mouseMovement.x > HandManager.Instance.CardScrollRatio ||
+        return Mathf.Abs(mouseMovement.y / mouseMovement.x) > HandManager.Instance.CardScrollRatio ||
             (mouseMovement.x < HandManager.Instance.CardScrollThreshold &&
             mouseMovement.x > -1 * HandManager.Instance.CardScrollThreshold);
     }
@@ -272,20 +262,27 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
         //makes it so that you can't move sideways while moving the card vertically
         if (ActiveCard && Centered)
         {
-            float yMovement = eventData.position.y - (Screen.height / 2) - mouseStart.y;
+            //float yMovement = eventData.position.y - (Screen.height / 2) - mouseStart.y;
+            float yMovement = Input.mousePosition.y - (Screen.height / 2) - mouseStart.y;
+            
             if (!HandManager.Instance.Scrolling && ActiveCard && Centered && yMovement > 0)
             { // Moves the card up towards the play square if an upward movement is detected
                 transform.position = new Vector3(RestingPosWorld.x, RestingPosWorld.y + yMovement, RestingPosWorld.z);
-            } else
+            } /*else
             {
                 transform.position = new Vector3(RestingPosWorld.x, RestingPosWorld.y, RestingPosWorld.z);
-            }
+            }*/
 
+            // If you're currently dragging a card, scrolling from left to right should be disabled to prevent glitches
+            // This is currently causing a card being dragged upwards to jump between the resting and dragging locations
+            // This is due to this detecting a "scroll" and on scroll, the card gets returned to its resting pos
+            /*
             if (!TouchWithinCardScrollRatio())
             { // Scrolls the cards if a predominantly sideways movement is detected
                 ToggleMoneyAndCarbonDisplays(false);
                 HandManager.Instance.DragCards();
             }
+            */
         }
     }
 
@@ -294,6 +291,7 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// </summary>
     public void OnEndDrag(PointerEventData eventData)
     {
+        // Double check that the drag has actually ended
         if (ActiveCard && Centered)
         {
             // Put card back in its hand position, if the card isn't being dragged sideways
