@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
         get { return carbon; }
         set { // Makes sure we set the slider UI value whenever Carbon is updated
             carbon = value;
+            CarbonCounter.text = value.ToString();
             CarbonSlider.value = value;
         }
     }
@@ -120,6 +121,7 @@ public class GameManager : MonoBehaviour
     [Header("Game UI Attributes")]
     public TextMeshProUGUI MoneyText;
     public Slider CarbonSlider;
+    public TextMeshProUGUI CarbonCounter;
     public Button RedrawButton;
 
     private void Awake()
