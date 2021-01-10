@@ -378,6 +378,8 @@ public class GameManager : MonoBehaviour
             activePlayerCards[activePlayerCardCount] = currentCard;
             //Increment the activePlayerCardCount
             activePlayerCardCount++;
+            // Apply the action card's effects immediately
+            ApplyActionEffects(currentCard);
             PlayerHand.RemoveAt(currentCardIndex);
             Debug.Log("Playerhand count = " + PlayerHand.Count);
 
@@ -462,6 +464,26 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Only applies action card effects
+    /// Useful for when momentum cards are played that don't end the turn
+    /// </summary>
+    public void ApplyActionEffects(ActionCard card)
+    {
+        //update money
+        Money += card.costMoney;
+        //update carbon cost
+        Carbon += card.costCarbon;
+        //update hope card
+        Hope += card.hope;
+
+        // Add card to played cards list and add its image to the greenhouse
+        Image greenhouseWindow = Greenhouse.transform.GetChild(PlayedCards.Count).GetComponent<Image>();
+        greenhouseWindow.enabled = true;
+        Greenhouse.transform.GetChild(PlayedCards.Count).GetComponent<Image>().sprite = card.cardImage;
+        PlayedCards.Add(card);
+    }
+
+    /// <summary>
     /// Called to end the player's current turn and set up for next turn
     /// </summary>
     public void EndTurn()
@@ -479,18 +501,6 @@ public class GameManager : MonoBehaviour
             CurrentEventDeck.Insert(0, CardDataCompiler.Instance.SuperNegativeEventCards[activeEventCard.cardName]);
         }
 
-
-        //Update based on player cards
-        for (int i = 0; i < activePlayerCardCount; i++)
-        {
-            //update money
-            Money += activePlayerCards[i].costMoney;
-            //update carbon cost
-            Carbon += activePlayerCards[i].costCarbon;
-            //update hope card
-            Hope += activePlayerCards[i].hope;
-        }
-
         //check momentum for super positive event and if there are remaining super positive cards to be played
         if(activePlayerCardCount >= 3 && CardDataCompiler.Instance.PositiveEventCards.Count > 0)
         {
@@ -504,10 +514,6 @@ public class GameManager : MonoBehaviour
         {
             if (activePlayerCards[j] != null)
             {
-                Image greenhouseWindow = Greenhouse.transform.GetChild(PlayedCards.Count).GetComponent<Image>();
-                greenhouseWindow.enabled = true;
-                Greenhouse.transform.GetChild(PlayedCards.Count).GetComponent<Image>().sprite = activePlayerCards[j].cardImage;
-                PlayedCards.Add(activePlayerCards[j]);
                 activePlayerCards[j] = null;
             }
         }

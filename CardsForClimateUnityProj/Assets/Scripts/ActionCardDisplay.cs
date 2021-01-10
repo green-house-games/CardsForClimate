@@ -315,7 +315,10 @@ public class ActionCardDisplay : MonoBehaviour, IBeginDragHandler, IDragHandler,
                         {
                             // If valid, we add the card to the card catcher square's collection
                             // and tell the GameManager to play this card.
-                            CardCatcher.Instance.CatchCard(this);
+
+                            // TODO remove this functionality. Card catching will no longer be needed
+                            // Keeping the code in here but removing this could make it much cleaner
+                            //CardCatcher.Instance.CatchCard(this);
                             Deactivate();
                             GameManager.Instance.UseCardByUI(MyCard);
                         }
