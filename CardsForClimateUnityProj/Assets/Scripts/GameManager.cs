@@ -16,6 +16,10 @@ public class GameManager : MonoBehaviour
         set { // Makes sure we set the money UI value whenever Money is updated
             money = value;
             MoneyText.text = ((int)value).ToString();
+            if (money <= 0)
+            {
+                GameEnd();
+            }
         }
     }
 
@@ -481,6 +485,31 @@ public class GameManager : MonoBehaviour
         greenhouseWindow.enabled = true;
         Greenhouse.transform.GetChild(PlayedCards.Count).GetComponent<Image>().sprite = card.cardImage;
         PlayedCards.Add(card);
+
+        // CHECK GAME END CONDITIONS
+        // Check if money is less than zero
+        if (Money <= 0)
+        {
+            GameEnd();
+        }
+
+        // Check if carbon is 30 or greater
+        if (Carbon >= 30)
+        {
+            GameEnd();
+        }
+
+        // Check if all hope is gone
+        if (Hope <= MIN_HOPE)
+        {
+            GameEnd();
+        }
+
+        // Check if carbon has reached 0 (win condition)
+        if (Carbon <= 0)
+        {
+            GameEnd();
+        }
     }
 
     /// <summary>
@@ -537,7 +566,7 @@ public class GameManager : MonoBehaviour
         // CHECK GAME END CONDITIONS
 
         // Check if money is less than zero
-        if (Money < 0)
+        if (Money <= 0)
         {
             GameEnd();
         }
