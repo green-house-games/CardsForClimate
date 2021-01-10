@@ -7446,6 +7446,61 @@ PrefabInstance:
       propertyPath: m_textInfo.pageCount
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.data[1].time
+      value: 0.469839
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.data[1].value
+      value: -0.24845693
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.data[1].inSlope
+      value: 0.73660517
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.data[1].outSlope
+      value: 0.73660517
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.data[0].inSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.data[0].outSlope
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.data[1].inWeight
+      value: 0.2392436
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.data[1].outWeight
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.data[2].time
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8767131758594369925, guid: 4869ae2933fea474286ed92b245be0aa,
+        type: 3}
+      propertyPath: HeartCurve.m_Curve.Array.data[2].value
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 4869ae2933fea474286ed92b245be0aa, type: 3}
 --- !u!224 &1992507963 stripped
