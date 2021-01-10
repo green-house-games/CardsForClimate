@@ -460,12 +460,12 @@ public class GameManager : MonoBehaviour
 
         TimeRemaining = 10;
 
-        //Check if the card has a super event card
-        if (CardDataCompiler.Instance.SuperNegativeEventCards.ContainsKey(activeEventCard.cardName))
-        {
-            //Add the super bad event card to the event deck to be drawn next
-            CurrentEventDeck.Insert(0, CardDataCompiler.Instance.SuperNegativeEventCards[activeEventCard.cardName]);
-        }
+        ////Check if the card has a super event card
+        //if (CardDataCompiler.Instance.SuperNegativeEventCards.ContainsKey(activeEventCard.cardName))
+        //{
+        //    //Add the super bad event card to the event deck to be drawn next
+        //    CurrentEventDeck.Insert(0, CardDataCompiler.Instance.SuperNegativeEventCards[activeEventCard.cardName]);
+        //}
 
 
         //Update based on player cards
