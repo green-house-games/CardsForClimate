@@ -49,7 +49,7 @@ public class EventCardDisplay : MonoBehaviour
 
     private void Update()
     {
-        transform.localPosition = Vector3.Lerp(endPos, startPos, GameManager.Instance.TimeRemaining / GameManager.Instance.TimeBetweenTurns);
+        transform.localPosition = Vector3.Lerp(endPos, startPos, GameManager.Instance.TimeRemainingInTurn / GameManager.Instance.TimeBetweenTurns);
     }
 
     /// <summary>

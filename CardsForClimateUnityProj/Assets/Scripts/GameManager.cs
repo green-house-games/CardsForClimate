@@ -75,7 +75,9 @@ public class GameManager : MonoBehaviour
     // Global timer
     public TextMeshProUGUI timer;
     public float TimeBetweenTurns = 10;
-    public float TimeRemaining { get; private set; }
+    public float TimeBeforeTurn = 2;
+    public float TimeRemainingBeforeTurn { get; private set; }
+    public float TimeRemainingInTurn { get; private set; }
     private int minutes = 0;
     private int seconds = 0;
 
@@ -85,6 +87,8 @@ public class GameManager : MonoBehaviour
     public List<Card> PlayedCards { get; private set; }
 
     public GameObject Greenhouse;
+
+    public GameObject TouchBlocker;
 
     //Keeps track of what cards come next from the decks, receives data from master lists
     public List<EventCard> CurrentEventDeck { get; private set; }
@@ -170,7 +174,8 @@ public class GameManager : MonoBehaviour
         //Money and Carbon start at 20 every game
         Money = 20;
         Carbon = 20;
-        TimeRemaining = TimeBetweenTurns;
+        TimeRemainingInTurn = TimeBetweenTurns;
+        TimeRemainingBeforeTurn = TimeBeforeTurn;
 
         //Start the game by generating the decks players will draw from
         GenerateActionDeck();
@@ -246,14 +251,20 @@ public class GameManager : MonoBehaviour
     /// </summary>
     void Update()
     {
-        // Update timer
-        TimeRemaining -= Time.deltaTime;
-        minutes = Mathf.Max(Mathf.FloorToInt(TimeRemaining / 60),0);
-        seconds = Mathf.Max(Mathf.CeilToInt(TimeRemaining % 60),0);
-        if (TimeRemaining <= 0)
+
+        TimeRemainingBeforeTurn -= Time.deltaTime;
+        TouchBlocker.SetActive(TimeRemainingBeforeTurn > 0);
+        if(TimeRemainingBeforeTurn <= 0)
         {
-            turnActive = false;
-            EndTurn();
+            // Update timer
+            TimeRemainingInTurn -= Time.deltaTime;
+            minutes = Mathf.Max(Mathf.FloorToInt(TimeRemainingInTurn / 60), 0);
+            seconds = Mathf.Max(Mathf.CeilToInt(TimeRemainingInTurn % 60), 0);
+            if (TimeRemainingInTurn <= 0)
+            {
+                turnActive = false;
+                EndTurn();
+            }
         }
         //timer.text = minutes.ToString() + ':' + seconds;
         // timer text not being used
@@ -458,7 +469,8 @@ public class GameManager : MonoBehaviour
         //Display that the turn has ended
         Debug.Log("Turn Ended");
 
-        TimeRemaining = 10;
+        TimeRemainingInTurn = TimeBetweenTurns;
+        TimeRemainingBeforeTurn = TimeBeforeTurn;
 
         ////Check if the card has a super event card
         if (CardDataCompiler.Instance.SuperNegativeEventCards.ContainsKey(activeEventCard.cardName))
@@ -709,7 +721,7 @@ public class GameManager : MonoBehaviour
         //if money reaches 0 then gameover
         //if hope reaches 0 then gameover
         //If eventdeck runs out of cards then gameover
-        if(Carbon >= 30 || Money <= 0 || Hope <= MIN_HOPE || CurrentEventDeck.Count == 0 || TimeRemaining <= 0)
+        if(Carbon >= 30 || Money <= 0 || Hope <= MIN_HOPE || CurrentEventDeck.Count == 0 || TimeRemainingInTurn <= 0)
         {
             //Change status of gameover
             gameOver = true;
@@ -735,7 +747,7 @@ public class GameManager : MonoBehaviour
                 Debug.Log("People have lost too much to continue! Game Over");
                 EndTextHolder.GetComponent<EndGameText>().SetEnding(3);
                 SceneManager.LoadScene("BadEndMenu");
-            } else if (TimeRemaining <= 0)
+            } else if (TimeRemainingInTurn <= 0)
             {
                 EndTextHolder.GetComponent<EndGameText>().SetEnding(4);
                 SceneManager.LoadScene("BadEndMenu");
