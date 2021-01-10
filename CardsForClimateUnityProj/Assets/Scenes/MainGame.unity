@@ -2001,7 +2001,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timer: {fileID: 0}
-  TimeBetweenTurns: 10
+  TimeBetweenTurns: 15
   Greenhouse: {fileID: 1683598470}
   MoneyText: {fileID: 1415509403}
   CarbonSlider: {fileID: 1562582582}
