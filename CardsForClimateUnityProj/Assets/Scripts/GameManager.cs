@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
         set {
             if (value <= MIN_HOPE) {
                 hope = MIN_HOPE;
-                // GameEnd();
+                GameEnd();
             }
             else if (value >= MAX_HOPE) hope = MAX_HOPE;
             else hope = value;
@@ -544,6 +544,12 @@ public class GameManager : MonoBehaviour
 
         // Check if all hope is gone
         if (Hope <= MIN_HOPE)
+        {
+            GameEnd();
+        }
+
+        // Check if carbon has reached 0 (win condition)
+        if (Carbon <= 0)
         {
             GameEnd();
         }
