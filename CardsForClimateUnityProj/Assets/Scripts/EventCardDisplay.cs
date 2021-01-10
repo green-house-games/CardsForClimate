@@ -31,6 +31,8 @@ public class EventCardDisplay : MonoBehaviour
     public Vector3 startPos;
     public Vector3 endPos;
 
+    //public AnimationCurve HeartCurveX;
+    //public AnimationCurve HeartCurveY;
     private Animator myAnimator;
 
     private void Awake()
@@ -44,12 +46,16 @@ public class EventCardDisplay : MonoBehaviour
     private void Start()
     {
         startPos = transform.localPosition;
-        endPos = new Vector3(-55.9f, -672, 0);
+        endPos = new Vector3(transform.localPosition.x, -672, 0);
     }
 
     private void Update()
     {
         transform.localPosition = Vector3.Lerp(endPos, startPos, GameManager.Instance.TimeRemainingInTurn / GameManager.Instance.TimeBetweenTurns);
+        /*if (GameManager.Instance.TimeRemainingBeforeTurn > 0)
+        {
+            heart animation goes in here!
+        }*/
     }
 
     /// <summary>
@@ -62,7 +68,6 @@ public class EventCardDisplay : MonoBehaviour
 
         MyCard = thisCard;
         Title.GetComponent<TextMeshProUGUI>().text = thisCard.cardName;
-        Description.GetComponent<TextMeshProUGUI>().text = thisCard.cardDesc;
         Money.GetComponent<TextMeshProUGUI>().text =
                                                 (thisCard.costMoney > 0 ? "+" : "") + thisCard.costMoney.ToString();
         Carbon.GetComponent<TextMeshProUGUI>().text =
